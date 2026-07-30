@@ -113,10 +113,7 @@ def read_meta(flash: Flash) -> int:
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
-    """BUGGY: pick max image_version among ACTIVE/CANDIDATE, ignore anti-rollback and ACTIVE preference.
-
-    Returns (slot_name_or_None, security_version_or_None, anti_rollback_min).
-    """
+    """Return (slot_name_or_None, security_version_or_None, anti_rollback_min)."""
     floor = read_meta(flash)
     candidates: List[Tuple[str, SlotInfo]] = []
     for name in ("A", "B"):
@@ -127,7 +124,6 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             candidates.append((name, info))
     if not candidates:
         return None, None, floor
-    # BUG: ignore floor and ACTIVE preference; max image_version, tie -> lower slot_id
     candidates.sort(key=lambda x: (-x[1].image_version, x[1].slot_id))
     name, info = candidates[0]
     return name, info.security_version, floor

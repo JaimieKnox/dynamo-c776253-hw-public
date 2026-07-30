@@ -9,16 +9,12 @@ from .journal import TOMBSTONE, Journal, newer_seq
 
 
 def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
-    """Fold complete records into live key map for migration.
-
-    BUGGY: skips tombstones, so deleted keys can be resurrected on reclaim.
-    """
+    """Fold complete records into live key map for migration."""
     live: Dict[bytes, Tuple[bytes, int]] = {}
     for rec in journal.iter_records():
         if not rec.complete:
             continue
         if rec.flags & TOMBSTONE:
-            # BUG: ignore tombstones during fold for migrate
             continue
         prev = live.get(rec.key)
         if prev is None or newer_seq(prev[1], rec.seq):

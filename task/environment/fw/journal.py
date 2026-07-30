@@ -27,10 +27,7 @@ class Record:
 
 
 def newer_seq(a: int, b: int) -> bool:
-    """Return True if sequence b is strictly newer than a.
-
-    BUGGY shipped behavior: plain greater-than (fails across 16-bit wrap).
-    """
+    """Return True if sequence b is strictly newer than a."""
     return b > a
 
 
@@ -107,7 +104,7 @@ class Journal:
     def record_complete(
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
-        """BUGGY: accepts non-erased payload without SEAL_PAY."""
+        """Return True when the record at page/offset is durable."""
         if not (flags & SEAL_HDR):
             return False
         pay_len = key_len + val_len

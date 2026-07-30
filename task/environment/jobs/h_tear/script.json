@@ -1,0 +1,33 @@
+{
+  "job_id": "h_tear",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "b",
+      "value": "2"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 2,
+      "image_version": 5
+    },
+    {
+      "op": "put",
+      "key": "c",
+      "value": "3",
+      "tear": "after_payload"
+    },
+    {
+      "op": "put",
+      "key": "d",
+      "value": "4"
+    }
+  ]
+}

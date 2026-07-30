@@ -1,0 +1,31 @@
+{
+  "job_id": "sample_02",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "put",
+      "key": "mode",
+      "value": "idle"
+    },
+    {
+      "op": "put",
+      "key": "mode",
+      "value": "run"
+    },
+    {
+      "op": "put",
+      "key": "temp",
+      "value": "40"
+    },
+    {
+      "op": "delete",
+      "key": "temp"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 3,
+      "image_version": 11
+    }
+  ]
+}

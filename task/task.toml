@@ -1,38 +1,32 @@
-artifacts = []  # paths the verifier reads from the agent (e.g. ["/app/output.json"]) — must be above the first [section]
+artifacts = ["/app/output/batch_report.jsonl", "/app/output"]
 
 [task]
-name = "dynamo/your-task-name"  # required format: org/name (Harbor needs the slash); name part lowercase kebab-case, <=3 words
-description = ""                 # one-line summary of the task
+name = "dynamo/flash-slot-recover"
+description = "Repair NOR flash journal and A/B OTA slot recovery so hard tear, wrap, reclaim, and promote jobs recover correctly."
 
 [metadata]
-# --- Pre-seeded for you when this repo was created — DO NOT EDIT ---
-category = "Hardware Embedded and Low Level Systems"                      # diversity category, assigned to your task by the Dynamo team
-subcategory = "Embedded and firmware"                   # diversity subcategory, assigned by the Dynamo team
-# --- Fixed for this dataset — LEAVE AS-IS ---
-model_tested = "Opus-4.8"           # difficulty-benchmarking model (do not change)
-agent_tested = "Terminus-2"        # difficulty-benchmarking agent (do not change)
-# --- You fill these in ---
-# task_objective / artifact_type: pick from .dynamo/diversity-taxonomy.toml (lowercase snake_case).
-task_objective = []                # e.g. ["implement", "debug"]
-artifact_type = []                 # e.g. ["codebase", "configuration_file"]
-expert_time_estimate_hours = 0     # best-case hours for a focused domain expert with the intended insight
-difficulty_explanation = ""        # why this task is hard for agents and humans
-solution_explanation = ""          # high-level approach and key insights
-verification_explanation = ""      # how the tests verify correctness
+category = "Hardware Embedded and Low Level Systems"
+subcategory = "Embedded and firmware"
+model_tested = "Opus-4.8"
+agent_tested = "Terminus-2"
+task_objective = ["debug", "fix", "recover_or_repair_artifact"]
+artifact_type = ["codebase", "hardware_or_firmware_artifact", "generated_output_artifact"]
+expert_time_estimate_hours = 10
+difficulty_explanation = "Shipped firmware passes narrow sample jobs while four independent defects remain in seal completeness, modular sequence compare, reclaim tombstone fold, and boot slot policy. Hard jobs combine tears, 16-bit wrap, reclaim resurrection, and interrupted promote under anti-rollback so fixing only one path still fails the batch."
+solution_explanation = "Replace journal completeness and modular newer_seq, make reclaim fold_live honor tombstones like KV recovery, and select boot slots by anti-rollback floor with ACTIVE preference then (-security_version, -generation, slot_id). Re-run the batch runner to emit recovered JSON and batch_report.jsonl."
+verification_explanation = "An independent reference model in the verifier replays every job script with correct algorithms and compares kv, boot_slot, security_version, generation, and anti_rollback_min. Schema and job order are checked on batch_report.jsonl and per-job recovered.json. Sample smoke must still pass."
 
 [verifier]
-timeout_sec = 120.0                # increase based on your test suite's runtime demands
-# Canonical TB2: the verifier runs in the environment image (no separate tests/Dockerfile).
-# Harbor overlays tests/ at verify time; leave environment_mode unset for this shared model.
+timeout_sec = 180.0
 
 [agent]
-timeout_sec = 120.0                # raise for hard tasks — agents may run for many minutes or hours
+timeout_sec = 2400.0
 
 [environment]
-build_timeout_sec = 600.0          # max seconds for the Docker build
-cpus = 1                           # increase for parallel/compute-heavy workloads
-memory_mb = 2048                   # increase for large datasets or in-memory processing
-storage_mb = 10240                 # increase for tasks with large files or build artifacts
-gpus = 0                           # max 1, expect H100
-allow_internet = true              # open internet is available to the agent
-mcp_servers = []                   # optional MCP servers to expose to the agent
+build_timeout_sec = 600.0
+cpus = 1
+memory_mb = 2048
+storage_mb = 10240
+gpus = 0
+allow_internet = true
+mcp_servers = []

@@ -1,17 +1,32 @@
-<!--
-  This file is the PROMPT handed verbatim to the model that will attempt your task.
-  Replace everything in this comment with your task instruction, then delete the comment.
+The device firmware under `/app/fw` persists a NOR flash journal and A/B OTA slot metadata. Normative behavior is documented in `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md`.
 
-  Guidelines:
-  - Write it yourself, as a domain expert. Do NOT generate it with an LLM.
-  - It's a prompt, not a document — no title, no section headers, no excessive Markdown.
-  - Write it the way you'd brief a skilled colleague.
-  - Use absolute paths (e.g. /app/output.txt), never relative paths.
-  - Be explicit about every expected output file and its exact format/schema.
-  - Include everything the agent needs to solve the task — and nothing more (don't
-    hint at or reveal your solution).
-  - Keep it concise (<= 1500 tokens). State the goal and required outputs; skip
-    backstory, roleplay, and filler.
--->
+Sample jobs under `/app/jobs/sample_*` are narrow calibration cases. They never tear mid-commit, never wrap the sequence counter near its top, never force reclaim, never interrupt promote, and never rely on anti-rollback rejection. Harder jobs under `/app/jobs/h_*` exercise those paths.
 
-Replace this file with your task instruction.
+Repair the firmware so recovery matches the docs, then produce batch outputs for every job in `/app/jobs`.
+
+Run the batch with:
+
+```
+python3 -m fw /app/jobs /app/output
+```
+
+For each job write `/app/output/<job_id>/recovered.json` with exactly these keys:
+
+- `job_id` (string)
+- `kv` (object mapping string keys to string values)
+- `boot_slot` (`"A"`, `"B"`, or `null`)
+- `security_version` (integer or `null`)
+- `generation` (integer)
+- `anti_rollback_min` (integer)
+
+Also write `/app/output/batch_report.jsonl`: one JSON object per job, same keys as each recovered file, compact form with `sort_keys=True`, jobs in ascending `job_id` order.
+
+Success criteria:
+
+1. `/app/output/batch_report.jsonl` exists and lists every job in ascending `job_id` order.
+2. Every job has `/app/output/<job_id>/recovered.json` containing all required keys.
+3. For every job, `kv` matches correct journal recovery including tears, sequence wrap, and tombstones after reclaim.
+4. For every job, `boot_slot` and `security_version` match correct slot selection including anti-rollback and ACTIVE preference.
+5. For every job, `generation` equals the modular sequence tip among complete records under the journal newer rule (or `0` if none).
+6. For every job, `anti_rollback_min` matches the meta floor used by that job.
+7. `/app/smoke/run_smoke.py` still passes against the repaired firmware for `sample_*` jobs.

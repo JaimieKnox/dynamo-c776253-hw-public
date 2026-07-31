@@ -1,0 +1,65 @@
+{
+  "job_id": "h_reclaim_wrap",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "anchor",
+      "value": "old"
+    },
+    {
+      "op": "put",
+      "key": "beta",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "gamma",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "delta",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "epsilon",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "zeta",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "anchor",
+      "value": "mid"
+    },
+    {
+      "op": "delete",
+      "key": "beta"
+    },
+    {
+      "op": "pad_puts",
+      "count": 130,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "anchor",
+      "value": "new"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 2,
+      "image_version": 7
+    }
+  ]
+}

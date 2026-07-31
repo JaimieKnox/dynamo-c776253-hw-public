@@ -31,8 +31,10 @@ def reclaim(flash: Flash, journal: Journal) -> None:
         flash.erase_page(page)
     journal.write_page = 0
     journal.write_off = 0
-    journal.next_seq = next_seq
-    # rewrite in key order for determinism, using original seq order by seq
+    # BUG: rewrite retaining each key's prior sequence instead of allocating
+    # from the preserved next_seq stream, then restore the cursor.
     items = sorted(live.items(), key=lambda kv: kv[1][1])
-    for key, (value, _seq) in items:
+    for key, (value, seq) in items:
+        journal.next_seq = seq
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
+    journal.next_seq = next_seq

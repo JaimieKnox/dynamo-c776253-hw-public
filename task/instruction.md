@@ -1,6 +1,6 @@
 The device firmware under `/app/fw` persists a NOR flash journal and A/B OTA slot metadata. Normative behavior is documented in `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md`.
 
-Sample jobs under `/app/jobs/sample_*` are narrow calibration cases. They never tear mid-commit, never wrap the sequence counter near its top, never force reclaim, never interrupt promote, and never rely on anti-rollback rejection. Harder jobs under `/app/jobs/h_*` exercise those paths.
+Sample jobs under `/app/jobs/sample_*` are narrow calibration cases. They never tear mid-commit, never wrap the sequence counter near its top, never force reclaim, never interrupt promote, and never rely on anti-rollback rejection. Harder jobs under `/app/jobs/h_*` exercise those paths, including reclaim that lands across a sequence wrap.
 
 Repair the firmware so recovery matches the docs, then produce batch outputs for every job in `/app/jobs`.
 

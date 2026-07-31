@@ -418,11 +418,21 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
         return None, None, floor
     active = [(n, i) for n, i in pool if i.state == ACTIVE]
     chosen = active if active else pool
-    chosen.sort(
-        key=lambda x: (-x[1].security_version, -x[1].generation, x[1].slot_id)
-    )
-    name, info = chosen[0]
-    return name, info.security_version, floor
+    best_name, best = chosen[0]
+    for name, info in chosen[1:]:
+        if info.security_version > best.security_version:
+            best_name, best = name, info
+            continue
+        if info.security_version < best.security_version:
+            continue
+        if newer_seq(best.generation, info.generation):
+            best_name, best = name, info
+            continue
+        if newer_seq(info.generation, best.generation):
+            continue
+        if info.slot_id < best.slot_id:
+            best_name, best = name, info
+    return best_name, best.security_version, floor
 
 
 def promote(

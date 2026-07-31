@@ -35,18 +35,11 @@ A power tear may stop after the header (`after_header`) or after the payload byt
 
 ## Completeness
 
-A record is complete only when:
-
-- magic and `hdr_crc` are valid
-- `SEAL_HDR` is set
-- `SEAL_PAY` is set
-- `pay_crc` matches the payload
-
-Incomplete records are ignored for recovery, generation, and reclaim folds.
+A record is complete only when magic and `hdr_crc` are valid, both seals from the two-phase commit are present on the header, and `pay_crc` matches the payload. Incomplete records are ignored for recovery, generation, and reclaim folds.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Sequence `b` is strictly newer than `a` when `((b - a) & 0xFFFF)` is in `1 .. 32767` inclusive.
+Sequences are 16-bit and wrap. Sequence `b` is strictly newer than `a` when the forward distance from `a` to `b` on the 16-bit ring is nonzero and at most half the ring (the usual unsigned wrap window).
 
 Output `generation` is the complete-record sequence tip under that newer rule, or `0` if none.
 

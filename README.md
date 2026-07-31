@@ -31,7 +31,7 @@ The reference solution replaces buggy modules with corrected implementations, th
 
 - Image: `task/environment/Dockerfile` on digest-pinned Ubuntu 24.04
 - Runtime: Python 3 with `pytest` and `pytest-json-ctrf` baked in
-- Baked content: `/app/docs`, `/app/fw`, `/app/jobs`, `/app/smoke`, `/app/samples`
+- Baked content: `/app/docs`, `/app/fw`, `/app/jobs`, `/app/smoke`
 - Not baked: `task/solution/` and `task/tests/` (Harbor mounts those only for oracle and verify)
 
 ## Verification

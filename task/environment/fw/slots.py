@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
+from .journal import newer_seq
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -115,18 +116,36 @@ def read_meta(flash: Flash) -> int:
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
     """Return (slot_name_or_None, security_version_or_None, anti_rollback_min)."""
     floor = read_meta(flash)
-    candidates: List[Tuple[str, SlotInfo]] = []
+    pool: List[Tuple[str, SlotInfo]] = []
     for name in ("A", "B"):
         info = read_slot(flash, name)
         if not info.valid:
             continue
-        if info.state in (ACTIVE, CANDIDATE):
-            candidates.append((name, info))
-    if not candidates:
+        if info.state not in (ACTIVE, CANDIDATE):
+            continue
+        if info.security_version < floor:
+            continue
+        pool.append((name, info))
+    if not pool:
         return None, None, floor
-    candidates.sort(key=lambda x: (-x[1].image_version, x[1].slot_id))
-    name, info = candidates[0]
-    return name, info.security_version, floor
+    active = [(n, i) for n, i in pool if i.state == ACTIVE]
+    chosen = active if active else pool
+    best_name, best = chosen[0]
+    for name, info in chosen[1:]:
+        if info.security_version > best.security_version:
+            best_name, best = name, info
+            continue
+        if info.security_version < best.security_version:
+            continue
+        # Generation ties use journal.newer_seq so wrap behavior is shared.
+        if newer_seq(best.generation, info.generation):
+            best_name, best = name, info
+            continue
+        if newer_seq(info.generation, best.generation):
+            continue
+        if info.slot_id < best.slot_id:
+            best_name, best = name, info
+    return best_name, best.security_version, floor
 
 
 def promote(

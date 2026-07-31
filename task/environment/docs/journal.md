@@ -31,17 +31,15 @@ CRC16-CCITT polynomial `0x1021`, initial value `0xFFFF`, no final XOR.
 2. Program payload bytes and `pay_crc`.
 3. Reprogram the header with `SEAL_PAY` also set.
 
-A power tear may stop after the header (`after_header`) or after the payload bytes (`after_payload`) before `SEAL_PAY` is set.
+A power tear may stop after the header (`after_header`) or after the payload bytes (`after_payload`) before the second seal is applied.
 
 ## Completeness
 
-A record is complete only when magic and `hdr_crc` are valid, both seals from the two-phase commit are present on the header, and `pay_crc` matches the payload. Incomplete records are ignored for recovery, generation, and reclaim folds.
+A record is durable only once the two-phase commit has fully finished for that record, including a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, generation, and reclaim folds.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Sequence `b` is strictly newer than `a` when the forward distance from `a` to `b` on the 16-bit ring is nonzero and at most half the ring (the usual unsigned wrap window).
-
-Output `generation` is the complete-record sequence tip under that newer rule, or `0` if none.
+Sequences are 16-bit and wrap. Recovery must order records correctly across wrap using the standard half-ring forward window on the 16-bit counter. Output `generation` is the complete-record sequence tip under that newer rule, or `0` if none.
 
 ## KV fold
 

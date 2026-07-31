@@ -39,10 +39,6 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 ## Boot selection
 
-1. Read `anti_rollback_min` from meta (`0` if meta invalid).
-2. Build a pool of slots whose page is valid, whose state is `ACTIVE` or `CANDIDATE`, and whose `security_version` meets the anti-rollback floor.
-3. If the pool is empty, boot slot is `null` and `security_version` is `null`.
-4. If any pool member is `ACTIVE`, restrict the pool to those `ACTIVE` slots.
-5. Among the remaining pool, prefer the highest `security_version`. Ties break by the newer stamped `generation` under the same 16-bit modular newer rule used by the journal. Remaining ties prefer the lower `slot_id`.
+Boot selection must respect the anti-rollback floor, prefer a confirmed-active slot when one is eligible, and otherwise choose among eligible candidates by higher security version. Equal security ties break by the newer stamped generation under the journal wrap rule, then by lower slot id.
 
 `image_version` is metadata only and must not decide boot selection.

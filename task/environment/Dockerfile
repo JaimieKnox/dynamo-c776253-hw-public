@@ -10,7 +10,6 @@ COPY docs /app/docs
 COPY fw /app/fw
 COPY jobs /app/jobs
 COPY smoke /app/smoke
-COPY samples /app/samples
 
 WORKDIR /app
 ENV PYTHONPATH=/app

@@ -1,32 +1,32 @@
-The device firmware under `/app/fw` persists a NOR flash journal and A/B OTA slot metadata. Normative behavior is documented in `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md`.
+Firmware under `/app/fw` owns a NOR flash journal plus A/B OTA slot state. Treat `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md` as the source of truth for correct recovery.
 
-Sample jobs under `/app/jobs/sample_*` are narrow calibration cases. They never tear mid-commit, never wrap the sequence counter near its top, never force reclaim, never interrupt promote, and never rely on anti-rollback rejection. Harder jobs under `/app/jobs/h_*` exercise those paths together.
+`/app/jobs/sample_*` only covers shallow calibration. Those cases avoid mid-commit tears, avoid sequence wrap near the high end of the counter, avoid forced reclaim, avoid interrupted promote, and avoid anti-rollback rejection. The `/app/jobs/h_*` suite mixes those failure modes.
 
-Repair the firmware so recovery matches the docs, then produce batch outputs for every job in `/app/jobs`.
+Fix the firmware until recovery agrees with the docs, then emit outputs for every directory under `/app/jobs`.
 
-Run the batch with:
+Invoke the batch as:
 
 ```
 python3 -m fw /app/jobs /app/output
 ```
 
-For each job write `/app/output/<job_id>/recovered.json` with exactly these keys:
+Each job must produce `/app/output/<job_id>/recovered.json` with precisely this key set:
 
 - `job_id` (string)
-- `kv` (object mapping string keys to string values)
+- `kv` (object of string keys to string values)
 - `boot_slot` (`"A"`, `"B"`, or `null`)
 - `security_version` (integer or `null`)
 - `generation` (integer)
 - `anti_rollback_min` (integer)
 
-Also write `/app/output/batch_report.jsonl`: one JSON object per job, same keys as each recovered file, compact form with `sort_keys=True`, jobs in ascending `job_id` order.
+Also emit `/app/output/batch_report.jsonl` with one object per job, identical keys to the recovered files, compact JSON using `sort_keys=True`, ordered by ascending `job_id`.
 
 Success criteria:
 
-1. `/app/output/batch_report.jsonl` exists and lists every job in ascending `job_id` order.
-2. Every job has `/app/output/<job_id>/recovered.json` containing all required keys.
-3. For every job, `kv` matches correct journal recovery including tears, sequence wrap, and tombstones after reclaim.
-4. For every job, `boot_slot` and `security_version` match correct slot selection including anti-rollback, ACTIVE preference, and equal-security generation ties under the journal wrap rule.
-5. For every job, `generation` equals the sequence tip among complete records under the journal wrap rule (or `0` if none).
-6. For every job, `anti_rollback_min` matches the meta floor used by that job.
-7. `/app/smoke/run_smoke.py` still passes against the repaired firmware for `sample_*` jobs.
+1. `/app/output/batch_report.jsonl` is present and includes every job sorted by ascending `job_id`.
+2. Each job writes `/app/output/<job_id>/recovered.json` with the full required key set.
+3. Across all jobs, `kv` matches correct journal recovery through tears, sequence wrap, and post-reclaim tombstones.
+4. Across all jobs, `boot_slot` and `security_version` match correct slot selection through anti-rollback, ACTIVE preference, and equal-security generation ties under the journal wrap rule.
+5. Across all jobs, `generation` is the sequence tip among complete records under the journal wrap rule (use `0` when none exist).
+6. Across all jobs, `anti_rollback_min` equals that job's meta floor.
+7. `/app/smoke/run_smoke.py` continues to pass on the repaired firmware for `sample_*` jobs.

@@ -1,0 +1,58 @@
+{
+  "job_id": "h_gen_rank",
+  "anti_rollback_min": 2,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 90
+    },
+    {
+      "op": "put",
+      "key": "seed",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "seed2",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 4,
+      "image_version": 100,
+      "tear": "after_candidate"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65534
+    },
+    {
+      "op": "put",
+      "key": "w1",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "w2",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "w3",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "w4",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 4,
+      "image_version": 1,
+      "tear": "after_candidate"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "job_id": "h_tomb",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "victim",
+      "value": "1"
+    },
+    {
+      "op": "delete",
+      "key": "victim"
+    },
+    {
+      "op": "pad_puts",
+      "count": 130,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "2"
+    }
+  ]
+}

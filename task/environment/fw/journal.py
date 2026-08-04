@@ -28,8 +28,8 @@ class Record:
 
 def newer_seq(a: int, b: int) -> bool:
     """Return True if sequence b is strictly newer than a (16-bit modular)."""
-    delta = (b - a) & 0xFFFF
-    return 1 <= delta <= 32767
+    # Almost-correct linear compare: looks fine until sequences wrap.
+    return b > a
 
 
 def _hdr_bytes(flags: int, key_len: int, val_len: int, seq: int) -> bytes:
@@ -107,14 +107,17 @@ class Journal:
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
         """Require SEAL_HDR, SEAL_PAY, and matching pay_crc."""
-        if not (flags & SEAL_HDR) or not (flags & SEAL_PAY):
+        if not (flags & SEAL_HDR):
             return False
         pay_len = key_len + val_len
         addr = page * PAGE_SIZE + offset + HDR_SIZE
         payload = self.flash.read(addr, pay_len + 2)
         pay = payload[:pay_len]
         got = payload[pay_len] | (payload[pay_len + 1] << 8)
-        return crc16_ccitt(pay) == got
+        if crc16_ccitt(pay) != got:
+            return False
+        # Almost-correct: treat payload+CRC as durable even before SEAL_PAY.
+        return True
 
     def iter_records(self) -> Iterator[Record]:
         for page in range(JOURNAL_PAGES):

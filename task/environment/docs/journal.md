@@ -35,7 +35,7 @@ A power tear may stop after the header (`after_header`) or after the payload byt
 
 ## Completeness
 
-A record is durable only once the two-phase commit has fully finished for that record, including a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, generation, and reclaim folds.
+A record is durable only once the two-phase commit has fully finished for that record. Both seal phases must be present, with a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, generation, and reclaim folds.
 
 ## Sequence ordering
 

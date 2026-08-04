@@ -1,0 +1,25 @@
+{
+  "job_id": "h_slot_tie",
+  "anti_rollback_min": 2,
+  "ops": [
+    {
+      "op": "put",
+      "key": "k",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 3,
+      "image_version": 10,
+      "tear": "after_candidate"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 3,
+      "image_version": 99,
+      "tear": "after_candidate"
+    }
+  ]
+}

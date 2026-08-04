@@ -3,6 +3,8 @@
 # Verifier entrypoint. Always exits 0. Writes reward 1/0.
 set -u
 mkdir -p /logs/verifier
+# Prevent agent-writable /app (ENV PYTHONPATH=/app) from shadowing stdlib/pytest.
+unset PYTHONPATH
 pytest --ctrf /logs/verifier/ctrf.json /tests/test_outputs.py -rA
 if [ $? -eq 0 ]; then
   echo 1 > /logs/verifier/reward.txt

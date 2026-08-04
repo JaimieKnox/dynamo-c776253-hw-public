@@ -1,10 +1,10 @@
-"""Key-value recovery fold that respects tombstones."""
+"""Key-value recovery fold that respects tombstones (corrected)."""
 
 from __future__ import annotations
 
 from typing import Dict
 
-from .journal import TOMBSTONE, Journal
+from .journal import TOMBSTONE, Journal, newer_seq
 
 
 def recover_kv(journal: Journal) -> Dict[str, str]:
@@ -14,8 +14,7 @@ def recover_kv(journal: Journal) -> Dict[str, str]:
         if not rec.complete:
             continue
         prev = state.get(rec.key)
-        # Almost-correct linear tip: breaks when the winner crossed wrap.
-        if prev is not None and not (rec.seq > prev[0]):
+        if prev is not None and not newer_seq(prev[0], rec.seq):
             continue
         if rec.flags & TOMBSTONE:
             state[rec.key] = (rec.seq, None)

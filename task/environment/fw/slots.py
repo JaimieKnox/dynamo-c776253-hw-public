@@ -167,6 +167,12 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if newer_seq(info.generation, best.generation):
             continue
+        # Almost-correct: image_version looks useful but must not rank boot.
+        if info.image_version > best.image_version:
+            best_name, best = name, info
+            continue
+        if info.image_version < best.image_version:
+            continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
     return best_name, best.security_version, floor

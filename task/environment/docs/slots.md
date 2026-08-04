@@ -59,4 +59,4 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 Boot selection must respect the anti-rollback floor, prefer a confirmed-active slot when one is eligible, and otherwise choose among eligible candidates by higher security version. Equal security ties break by the newer stamped generation under the journal wrap rule, then by lower slot id.
 
-`image_version` is metadata only and must not decide boot selection.
+`image_version` is metadata only and must not decide boot selection, including as a tie-break before `slot_id`. Equal security and equal generation under the wrap rule fall through to lower `slot_id` only.

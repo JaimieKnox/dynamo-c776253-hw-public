@@ -65,6 +65,9 @@ class Device:
             tear=tear,
         )
 
+    def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
+        write_meta(self.flash, floor, tear=tear)
+
     def apply_ops(self, ops: List[Dict[str, Any]]) -> None:
         for op in ops:
             kind = op["op"]
@@ -85,6 +88,8 @@ class Device:
                     self.journal.next_seq = 1
             elif kind == "pad_puts":
                 self.pad_puts(int(op.get("count", 40)), int(op.get("val_len", 40)))
+            elif kind == "raise_floor":
+                self.raise_floor(int(op["floor"]), tear=op.get("tear"))
             else:
                 raise ValueError(f"unknown op {kind}")
 

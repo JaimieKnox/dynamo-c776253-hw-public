@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
-from .flash_hal import META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
+from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
 from .journal import newer_seq
 
 MAGIC_SLOT = 0xBEEF
@@ -87,30 +87,54 @@ def read_slot(flash: Flash, which: str) -> SlotInfo:
     return SlotInfo(state, slot_id, sec, gen, img, ok)
 
 
-def write_meta(flash: Flash, anti_rollback_min: int) -> None:
-    flash.erase_page(META_PAGE)
+def _pack_meta(floor: int, epoch: int) -> bytes:
     body = bytes(
         [
             MAGIC_META & 0xFF,
             (MAGIC_META >> 8) & 0xFF,
-            anti_rollback_min & 0xFF,
-            (anti_rollback_min >> 8) & 0xFF,
+            floor & 0xFF,
+            (floor >> 8) & 0xFF,
+            epoch & 0xFF,
+            (epoch >> 8) & 0xFF,
         ]
     )
     c = crc16_ccitt(body)
-    flash.program(META_PAGE * PAGE_SIZE, body + bytes([c & 0xFF, (c >> 8) & 0xFF]))
+    return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
+
+
+def _unpack_meta(raw: bytes) -> Optional[Tuple[int, int]]:
+    if len(raw) < 8:
+        return None
+    magic = raw[0] | (raw[1] << 8)
+    if magic != MAGIC_META:
+        return None
+    floor = raw[2] | (raw[3] << 8)
+    epoch = raw[4] | (raw[5] << 8)
+    crc = raw[6] | (raw[7] << 8)
+    if crc16_ccitt(raw[:6]) != crc:
+        return None
+    return floor, epoch
+
+
+def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
+    if tear == "after_mirror":
+        return
+    raw = flash.read(META_PAGE * PAGE_SIZE, 8)
+    parsed = _unpack_meta(raw)
+    base = parsed[1] if parsed is not None else 0
+    next_epoch = (base + 1) & 0xFFFF
+    if next_epoch == 0:
+        next_epoch = 1
+    flash.erase_page(META_PAGE)
+    flash.program(META_PAGE * PAGE_SIZE, _pack_meta(floor, next_epoch))
 
 
 def read_meta(flash: Flash) -> int:
-    raw = flash.read(META_PAGE * PAGE_SIZE, 6)
-    magic = raw[0] | (raw[1] << 8)
-    if magic != MAGIC_META:
+    raw = flash.read(META_PAGE * PAGE_SIZE, 8)
+    parsed = _unpack_meta(raw)
+    if parsed is None:
         return 0
-    floor = raw[2] | (raw[3] << 8)
-    crc = raw[4] | (raw[5] << 8)
-    if crc16_ccitt(raw[:4]) != crc:
-        return 0
-    return floor
+    return parsed[0]
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:

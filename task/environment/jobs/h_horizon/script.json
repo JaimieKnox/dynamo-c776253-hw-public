@@ -1,24 +1,29 @@
 {
-  "job_id": "h_cross_plane",
-  "anti_rollback_min": 3,
+  "job_id": "h_horizon",
+  "anti_rollback_min": 2,
   "ops": [
     {
       "op": "force_seq",
-      "seq": 65530
+      "seq": 65533
     },
     {
       "op": "put",
       "key": "keep",
-      "value": "1"
+      "value": "old"
     },
     {
       "op": "put",
       "key": "victim",
-      "value": "old"
+      "value": "z"
     },
     {
       "op": "delete",
       "key": "victim"
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "mid"
     },
     {
       "op": "pad_puts",
@@ -28,13 +33,13 @@
     {
       "op": "put",
       "key": "keep",
-      "value": "2"
+      "value": "new"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 3,
-      "image_version": 90,
+      "security_version": 4,
+      "image_version": 100,
       "tear": "after_candidate"
     },
     {
@@ -45,17 +50,17 @@
     {
       "op": "put",
       "key": "tail",
-      "value": "x"
+      "value": "1"
     },
     {
       "op": "put",
       "key": "tail2",
-      "value": "y"
+      "value": "2"
     },
     {
       "op": "put",
       "key": "tail3",
-      "value": "z"
+      "value": "3"
     },
     {
       "op": "promote",

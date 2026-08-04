@@ -4,7 +4,7 @@ Harbor task under `task/` for repairing host-simulated NOR flash firmware that s
 
 ## Overview
 
-The agent works in `/app` with firmware under `/app/fw` and normative docs under `/app/docs`. Sample and hard jobs live under `/app/jobs`. The goal is to fix recovery so torn commits, sequence wrap, reclaim, promote tears, and anti-rollback behave as documented, then emit recovered state for every job.
+The agent works in `/app` with firmware under `/app/fw` and normative docs under `/app/docs`. Sample and hard jobs live under `/app/jobs`. The goal is to fix recovery so torn commits, sequence wrap, reclaim, promote tears, dual-copy anti-rollback meta, and generation tip ranking behave as documented, then emit recovered state for every job.
 
 Required outputs:
 
@@ -19,7 +19,7 @@ python3 -m fw /app/jobs /app/output
 
 ## Approach
 
-The reference solution replaces buggy modules with corrected implementations, then runs the batch driver:
+The reference solution replaces the defective modules with corrected implementations, then runs the batch driver:
 
 1. Copy fixed `journal.py`, `reclaim.py`, and `slots.py` into `/app/fw`.
 2. Require sealed records (`SEAL_HDR` and `SEAL_PAY`) with matching payload CRC before they count as live.

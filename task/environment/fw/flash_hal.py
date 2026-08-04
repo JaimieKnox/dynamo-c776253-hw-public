@@ -6,6 +6,7 @@ JOURNAL_PAGES = 28  # pages 0..27
 SLOT_A_PAGE = 28
 SLOT_B_PAGE = 29
 META_PAGE = 30
+META_MIRROR_PAGE = 31
 
 
 class Flash:

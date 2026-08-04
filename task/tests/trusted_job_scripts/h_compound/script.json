@@ -47,6 +47,11 @@
       "image_version": 1
     },
     {
+      "op": "raise_floor",
+      "floor": 4,
+      "tear": "after_mirror"
+    },
+    {
       "op": "promote",
       "slot": "B",
       "security_version": 4,

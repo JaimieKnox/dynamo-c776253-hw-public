@@ -21,13 +21,31 @@
 
 A slot page is usable only when magic and CRC validate.
 
-## Meta page
+## Anti-rollback meta (dual copy)
+
+Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share the same little-endian layout:
 
 | Field | Size | Notes |
 |-------|------|-------|
 | magic | u16 | `0xCAFE` |
 | anti_rollback_min | u16 | security floor |
-| crc16 | u16 | CRC16-CCITT over the four bytes before `crc16` |
+| epoch | u16 | copy freshness counter |
+| crc16 | u16 | CRC16-CCITT over the six bytes before `crc16` |
+
+### Meta write order
+
+1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`.
+2. Erase and program the mirror page with the new floor and epoch.
+3. If tear `after_mirror` is requested, stop here.
+4. Erase and program the primary page with the same floor and epoch.
+
+### Meta read
+
+Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor. If no copy validates, the floor is `0`.
+
+### raise_floor
+
+The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear.
 
 ## Promote phases
 

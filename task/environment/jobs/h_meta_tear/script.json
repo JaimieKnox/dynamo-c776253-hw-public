@@ -1,0 +1,29 @@
+{
+  "job_id": "h_meta_tear",
+  "anti_rollback_min": 2,
+  "ops": [
+    {
+      "op": "put",
+      "key": "seed",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 4,
+      "image_version": 10
+    },
+    {
+      "op": "raise_floor",
+      "floor": 5,
+      "tear": "after_mirror"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 5,
+      "image_version": 11,
+      "tear": "after_candidate"
+    }
+  ]
+}

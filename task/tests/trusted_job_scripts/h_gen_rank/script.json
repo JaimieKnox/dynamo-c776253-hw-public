@@ -4,16 +4,21 @@
   "ops": [
     {
       "op": "force_seq",
-      "seq": 90
+      "seq": 65533
     },
     {
       "op": "put",
-      "key": "seed",
+      "key": "a",
       "value": "1"
     },
     {
       "op": "put",
-      "key": "seed2",
+      "key": "b",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "c",
       "value": "1"
     },
     {
@@ -24,27 +29,18 @@
       "tear": "after_candidate"
     },
     {
-      "op": "force_seq",
-      "seq": 65534
-    },
-    {
       "op": "put",
-      "key": "w1",
+      "key": "d",
       "value": "1"
     },
     {
       "op": "put",
-      "key": "w2",
+      "key": "e",
       "value": "1"
     },
     {
       "op": "put",
-      "key": "w3",
-      "value": "1"
-    },
-    {
-      "op": "put",
-      "key": "w4",
+      "key": "f",
       "value": "1"
     },
     {

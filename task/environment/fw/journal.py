@@ -27,8 +27,9 @@ class Record:
 
 
 def newer_seq(a: int, b: int) -> bool:
-    """Return True if sequence b is strictly newer than a."""
-    return b > a
+    """Return True if sequence b is strictly newer than a (16-bit modular)."""
+    delta = (b - a) & 0xFFFF
+    return 1 <= delta <= 32767
 
 
 def _hdr_bytes(flags: int, key_len: int, val_len: int, seq: int) -> bytes:
@@ -104,19 +105,15 @@ class Journal:
     def record_complete(
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
-        """Return True when the record at page/offset is durable."""
-        if not (flags & SEAL_HDR):
+        """Require SEAL_HDR, SEAL_PAY, and matching pay_crc."""
+        if not (flags & SEAL_HDR) or not (flags & SEAL_PAY):
             return False
         pay_len = key_len + val_len
         addr = page * PAGE_SIZE + offset + HDR_SIZE
         payload = self.flash.read(addr, pay_len + 2)
-        if flags & SEAL_PAY:
-            pay = payload[:pay_len]
-            got = payload[pay_len] | (payload[pay_len + 1] << 8)
-            return crc16_ccitt(pay) == got
-        if any(b != 0xFF for b in payload):
-            return True
-        return False
+        pay = payload[:pay_len]
+        got = payload[pay_len] | (payload[pay_len + 1] << 8)
+        return crc16_ccitt(pay) == got
 
     def iter_records(self) -> Iterator[Record]:
         for page in range(JOURNAL_PAGES):
@@ -216,10 +213,10 @@ class Journal:
         return seq
 
     def max_generation(self) -> int:
-        gen = None
+        gen = 0
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if gen is None or newer_seq(gen, rec.seq):
+            if rec.seq > gen:
                 gen = rec.seq
-        return 0 if gen is None else gen
+        return gen

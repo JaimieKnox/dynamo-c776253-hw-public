@@ -8,7 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Expectations match both buggy and correct firmware on samples.
+# Sample packs stay green under the shipped firmware and under the repaired tree.
 EXPECT = {
     "sample_01": {
         "kv": {"channel": "6", "ssid": "labnet"},

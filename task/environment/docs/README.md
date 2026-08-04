@@ -11,7 +11,8 @@ The host flash HAL rewrites programmed bytes so two-phase header seals can set `
 - Journal occupies pages 0 through 27 inclusive
 - Slot A is page 28
 - Slot B is page 29
-- Anti-rollback meta is page 30
+- Anti-rollback meta primary is page 30
+- Anti-rollback meta mirror is page 31
 
 See `journal.md`, `slots.md`, and `reclaim.md` for normative recovery rules.
 
@@ -40,7 +41,7 @@ For each job directory under `/app/jobs/<job_id>/script.json` the runner applies
 - `boot_slot` is `"A"`, `"B"`, or `null`
 - `security_version` is taken from the selected slot or `null` when none
 - `generation` is the modular sequence tip among complete journal records under the journal newer rule, or `0` if none
-- `anti_rollback_min` is the meta floor value
+- `anti_rollback_min` is the meta floor value after dual-copy meta recovery
 
 ## Job operations
 
@@ -51,7 +52,10 @@ Closed set of `op` values:
 - `promote` with `slot` (`A` or `B`), `security_version`, `image_version`, optional `tear`
 - `force_seq` with `seq` (sets the journal next sequence counter)
 - `pad_puts` with `count` and optional `val_len` (writes disposable keys to pressure reclaim)
+- `raise_floor` with `floor` int and optional `tear` (raises the anti-rollback security floor)
 
 Closed set of journal tear phases: `after_header`, `after_payload`.
 
 Closed set of promote tear phases: `after_candidate`, `after_invalidate`.
+
+Closed set of meta tear phases: `after_mirror`.

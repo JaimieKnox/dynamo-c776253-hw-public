@@ -38,6 +38,11 @@
       "tear": "after_candidate"
     },
     {
+      "op": "raise_floor",
+      "floor": 4,
+      "tear": "after_mirror"
+    },
+    {
       "op": "put",
       "key": "tail",
       "value": "x"
@@ -55,7 +60,7 @@
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 3,
+      "security_version": 4,
       "image_version": 1,
       "tear": "after_candidate"
     }

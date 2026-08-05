@@ -28,7 +28,7 @@ Graded checks:
 1. The batch report file exists and covers every pack in ascending `job_id` order.
 2. Every pack has a recovered file with the exact required key set.
 3. `kv` is correct for tears, wrap-crossing updates, and tombstones that survive reclaim.
-4. `boot_slot` and `security_version` follow anti-rollback (including dual-copy meta and floor raise), ACTIVE preference, and equal-security generation ties under the wrap rule without using `image_version`.
+4. `boot_slot` and `security_version` follow anti-rollback (including dual-copy meta and floor raise), ACTIVE preference, and equal-security generation ties under the wrap rule.
 5. `generation` is the modular sequence tip of complete records, or `0` when there are none.
 6. `anti_rollback_min` matches each pack meta floor after dual-copy recovery.
 7. `/app/smoke/run_smoke.py` still succeeds for `sample_*` after the repair.

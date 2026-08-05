@@ -85,9 +85,9 @@ class Journal:
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if max_seq is None or newer_seq(max_seq, seq):
                         max_seq = seq
-                    end_page, end_off = page, off + total
-                    saw = True
                 off += total
+                end_page, end_off = page, off
+                saw = True
         if not saw:
             self.write_page = 0
             self.write_off = 0

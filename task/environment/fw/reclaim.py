@@ -25,7 +25,13 @@ def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
 def reclaim(flash: Flash, journal: Journal) -> None:
     """Compact journal: erase all journal pages and rewrite live records."""
     live = fold_live(journal)
-    next_seq = journal.next_seq
+    linear_max = 0
+    for rec in journal.iter_records():
+        if rec.complete and rec.seq > linear_max:
+            linear_max = rec.seq
+    next_seq = (linear_max + 1) & 0xFFFF
+    if next_seq == 0:
+        next_seq = 1
     for page in range(JOURNAL_PAGES):
         flash.erase_page(page)
     journal.write_page = 0
@@ -34,4 +40,3 @@ def reclaim(flash: Flash, journal: Journal) -> None:
     items = sorted(live.items(), key=lambda kv: kv[1][1])
     for key, (value, _seq) in items:
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
-    journal.next_seq = next_seq

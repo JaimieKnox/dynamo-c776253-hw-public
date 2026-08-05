@@ -1,4 +1,4 @@
-"""Device orchestration: apply job scripts and emit recovered JSON."""
+"""Device orchestration: apply job scripts and emit recovered JSON (corrected)."""
 
 from __future__ import annotations
 
@@ -19,20 +19,13 @@ from .slots import (
     write_meta,
 )
 
-
 class Device:
     def __init__(self, anti_rollback_min: int = 1):
         self.flash = Flash()
         write_meta(self.flash, anti_rollback_min)
         self.journal = Journal(self.flash)
 
-    def _linear_generation(self, journal: Journal) -> int:
-        tip = 0
-        for rec in journal.iter_records():
-            if rec.complete and rec.seq > tip:
-                tip = rec.seq
-        return tip
-
+    
     def _reclaim(self) -> None:
         reclaim(self.flash, self.journal)
         self.journal._rescan()
@@ -69,7 +62,7 @@ class Device:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        gen = self._linear_generation(self.journal)
+        gen = self.journal.max_generation()
         promote(
             self.flash,
             slot,
@@ -78,7 +71,6 @@ class Device:
             generation=gen,
             tear=tear,
         )
-
 
     def force_meta_epoch(self, floor: int, epoch: int) -> None:
         epoch = epoch & 0xFFFF
@@ -125,7 +117,7 @@ class Device:
         j = Journal(self.flash)
         kv = recover_kv(j)
         boot, sec, floor = select_boot_slot(self.flash)
-        gen = self._linear_generation(j)
+        gen = j.max_generation()
         return {
             "job_id": job_id,
             "kv": kv,
@@ -135,13 +127,11 @@ class Device:
             "anti_rollback_min": floor if floor else read_meta(self.flash),
         }
 
-
 def run_job(script: Dict[str, Any]) -> Dict[str, Any]:
     floor = int(script.get("anti_rollback_min", 1))
     dev = Device(anti_rollback_min=floor)
     dev.apply_ops(script.get("ops", []))
     return dev.recover(script["job_id"])
-
 
 def run_jobs_dir(jobs_dir: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)

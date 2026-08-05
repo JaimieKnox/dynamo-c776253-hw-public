@@ -39,7 +39,7 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order, whether or not that record is durable or complete. Tip and generation still come only from complete records under the wrap rule below.
+On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. Tip, `next_seq`, and output `generation` come only from complete records under the wrap rule below.
 
 ## Sequence ordering
 

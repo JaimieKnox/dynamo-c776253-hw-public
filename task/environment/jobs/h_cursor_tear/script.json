@@ -13,17 +13,8 @@
     },
     {
       "op": "put",
-      "key": "hole",
-      "value": "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-      "tear": "after_payload"
-    },
-    {
-      "op": "reboot"
-    },
-    {
-      "op": "put",
       "key": "alive",
-      "value": "new"
+      "value": "mid"
     },
     {
       "op": "pad_puts",

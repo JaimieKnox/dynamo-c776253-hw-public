@@ -1,4 +1,4 @@
-"""A/B OTA slot metadata and boot selection."""
+"""A/B OTA slot metadata and boot selection ."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
-from .journal import newer_seq
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -116,6 +115,16 @@ def _unpack_meta(raw: bytes) -> Optional[Tuple[int, int]]:
     return floor, epoch
 
 
+def _gen_newer(a: int, b: int) -> bool:
+    delta = (b - a) & 0xFFFF
+    return 1 <= delta <= 32768
+
+
+def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int) -> None:
+    flash.erase_page(page)
+    flash.program(page * PAGE_SIZE, _pack_meta(floor, epoch))
+
+
 def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
     max_epoch = 0
     for page in (META_PAGE, META_MIRROR_PAGE):
@@ -128,12 +137,10 @@ def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
         next_epoch = 1
-    flash.erase_page(META_MIRROR_PAGE)
-    flash.program(META_MIRROR_PAGE * PAGE_SIZE, _pack_meta(floor, next_epoch))
+    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch)
     if tear == "after_mirror":
         return
-    flash.erase_page(META_PAGE)
-    flash.program(META_PAGE * PAGE_SIZE, _pack_meta(floor, next_epoch))
+    _program_meta_page(flash, META_PAGE, floor, next_epoch)
 
 
 def read_meta(flash: Flash) -> int:
@@ -143,15 +150,15 @@ def read_meta(flash: Flash) -> int:
         parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 8))
         if parsed is None:
             continue
-        floor_v, epoch = parsed
+        floor, epoch = parsed
         if best_epoch is None or epoch > best_epoch:
             best_epoch = epoch
-            best_floor = floor_v
+            best_floor = floor
     return 0 if best_floor is None else best_floor
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
-    """Return (slot_name_or_None, security_version_or_None, anti_rollback_min)."""
+    """Select boot slot among eligible ACTIVE/CANDIDATE pages."""
     floor = read_meta(flash)
     pool: List[Tuple[str, SlotInfo]] = []
     for name in ("A", "B"):
@@ -165,8 +172,7 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
         pool.append((name, info))
     if not pool:
         return None, None, floor
-    active = [(n, i) for n, i in pool if i.state == ACTIVE]
-    chosen = active if active else pool
+    chosen = pool
     best_name, best = chosen[0]
     for name, info in chosen[1:]:
         if info.security_version > best.security_version:
@@ -174,15 +180,10 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if newer_seq(best.generation, info.generation):
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if newer_seq(info.generation, best.generation):
-            continue
-        if info.image_version > best.image_version:
-            best_name, best = name, info
-            continue
-        if info.image_version < best.image_version:
+        if _gen_newer(info.generation, best.generation):
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
@@ -197,10 +198,6 @@ def promote(
     generation: int,
     tear: Optional[str] = None,
 ) -> None:
-    """Promote slot with optional tear points.
-
-    Phases: write CANDIDATE, invalidate other ACTIVE, mark ACTIVE.
-    """
     other = "B" if which == "A" else "A"
     sid = SLOT_ID[which]
     cand = SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True)

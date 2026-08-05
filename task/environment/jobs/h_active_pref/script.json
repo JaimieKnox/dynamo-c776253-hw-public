@@ -1,24 +1,23 @@
 {
-  "job_id": "h_img_trap",
+  "job_id": "h_active_pref",
   "anti_rollback_min": 2,
   "ops": [
     {
       "op": "put",
-      "key": "a",
+      "key": "k",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 4,
-      "image_version": 1,
-      "tear": "after_candidate"
+      "security_version": 3,
+      "image_version": 1
     },
     {
       "op": "promote",
       "slot": "B",
       "security_version": 4,
-      "image_version": 900,
+      "image_version": 50,
       "tear": "after_candidate"
     }
   ]

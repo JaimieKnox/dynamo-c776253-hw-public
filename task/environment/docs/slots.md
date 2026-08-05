@@ -34,18 +34,18 @@ Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share t
 
 ### Meta write order
 
-1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`.
+1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`. Epoch maximum uses the journal half-ring newer rule, not a linear numeric maximum.
 2. Erase and program the mirror page with the new floor and epoch.
-3. If tear `after_mirror` is requested, stop here.
+3. If tear `after_mirror` is requested, stop here. Do not program the primary page after an `after_mirror` tear.
 4. Erase and program the primary page with the same floor and epoch.
 
 ### Meta read
 
-Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor. If no copy validates, the floor is `0`.
+Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor. If no copy validates, the floor is `0`. A linear numeric epoch maximum must not choose the preferred copy after wrap.
 
 ### raise_floor
 
-The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear.
+The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear. It must not rewrite only the primary page, and it must not ignore a torn mirror that carries the newer epoch.
 
 ## Promote phases
 
@@ -59,4 +59,4 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 Boot selection must respect the anti-rollback floor, prefer a confirmed-active slot when one is eligible, and otherwise choose among eligible candidates by higher security version. Equal security ties break by the newer stamped generation under the journal wrap rule, then by lower slot id.
 
-`image_version` is metadata only and must not decide boot selection, including as a tie-break before `slot_id`. Equal security and equal generation under the wrap rule fall through to lower `slot_id` only.
+`image_version` is metadata only and must not decide boot selection, including as a tie-break before `slot_id`. Equal security and equal generation under the wrap rule fall through to lower `slot_id` only. A higher `image_version` must not win that tie.

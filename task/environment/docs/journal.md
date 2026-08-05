@@ -35,12 +35,16 @@ A power tear may stop after the header (`after_header`) or after the payload byt
 
 ## Completeness
 
-A record is durable only once the two-phase commit has fully finished for that record. Both seal phases must be present, with a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, generation, and reclaim folds.
+A record is durable only once the two-phase commit has fully finished for that record. Both seal phases must be present, with a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, generation, and reclaim folds. Incomplete records are not treated as durable even when the payload CRC matches.
+
+## Write cursor
+
+On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order, whether or not that record is durable or complete. The write cursor must not resume at the end of the last complete record when a later incomplete well-formed header record exists. Tip and generation still come only from complete records under the wrap rule below.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal write-cursor tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`; keep the sequence already selected. A linear numeric maximum is wrong after wrap: it can pin the write cursor behind the true tip and make later appends reuse sequences. Output `generation` is that complete-record tip, or `0` if none.
+Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal write-cursor tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`. Keep the sequence already selected. A linear numeric maximum is wrong after wrap: it can pin the write cursor behind the true tip and make later appends reuse sequences. Output `generation` is that complete-record tip, or `0` if none.
 
 ## KV fold
 
-Scan complete records in flash order. For each key keep the newest sequence under the wrap rule above. If that record is a tombstone, omit the key. Otherwise keep its value. Deletes must take effect even when reclaim never runs.
+Scan complete records in flash order. For each key keep the newest sequence under the wrap rule above. If that record is a tombstone, omit the key. Otherwise keep its value. Deletes must take effect even when reclaim never runs. A linear numeric `seq` comparison must not decide which record wins after wrap.

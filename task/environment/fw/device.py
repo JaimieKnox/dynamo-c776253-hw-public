@@ -108,6 +108,8 @@ class Device:
                 self.pad_puts(int(op.get("count", 40)), int(op.get("val_len", 40)))
             elif kind == "raise_floor":
                 self.raise_floor(int(op["floor"]), tear=op.get("tear"))
+            elif kind == "reboot":
+                self.journal = Journal(self.flash)
             else:
                 raise ValueError(f"unknown op {kind}")
 

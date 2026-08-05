@@ -42,6 +42,11 @@
       "value": "new"
     },
     {
+      "op": "put",
+      "key": "wrap_tail",
+      "value": "t"
+    },
+    {
       "op": "promote",
       "slot": "A",
       "security_version": 2,

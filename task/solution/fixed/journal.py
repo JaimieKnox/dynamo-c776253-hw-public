@@ -57,7 +57,6 @@ class Journal:
         self.write_off = 0
         self._rescan()
 
-
     def _rescan(self) -> None:
         max_seq = None
         end_page, end_off = 0, 0

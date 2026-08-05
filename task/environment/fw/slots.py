@@ -123,7 +123,7 @@ def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
         if parsed is None:
             continue
         epoch = parsed[1]
-        if epoch > max_epoch:
+        if max_epoch == 0 or newer_seq(max_epoch, epoch):
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
@@ -144,7 +144,7 @@ def read_meta(flash: Flash) -> int:
         if parsed is None:
             continue
         floor_v, epoch = parsed
-        if best_epoch is None or epoch > best_epoch:
+        if best_epoch is None or newer_seq(best_epoch, epoch):
             best_epoch = epoch
             best_floor = floor_v
     return 0 if best_floor is None else best_floor
@@ -174,7 +174,6 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        # Generation ties use journal.newer_seq so wrap behavior is shared.
         if newer_seq(best.generation, info.generation):
             best_name, best = name, info
             continue

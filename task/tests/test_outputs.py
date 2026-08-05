@@ -9,10 +9,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ref_model import expected_for_jobs
-
 OUTPUT_ROOT = Path("/app/output")
 TRUSTED_SCRIPTS = Path(__file__).resolve().parent / "trusted_job_scripts"
+SEAL_PATH = Path("/logs/verifier/expected.json")
 SCHEMA_KEYS = frozenset(
     {
         "job_id",
@@ -35,6 +34,14 @@ def trusted_job_ids() -> list[str]:
     return sorted(ids)
 
 
+def load_sealed() -> dict:
+    assert SEAL_PATH.is_file(), f"sealed expectations missing at {SEAL_PATH}"
+    payload = json.loads(SEAL_PATH.read_text(encoding="utf-8"))
+    jobs = payload["jobs"]
+    assert isinstance(jobs, dict), "sealed jobs must be an object"
+    return jobs
+
+
 def read_batch_report():
     report = OUTPUT_ROOT / "batch_report.jsonl"
     assert report.is_file(), "batch_report.jsonl missing"
@@ -55,7 +62,7 @@ def read_recovered(job_id: str) -> dict:
 
 
 def reference_by_job() -> dict:
-    return expected_for_jobs(TRUSTED_SCRIPTS)
+    return load_sealed()
 
 
 def test_criterion_1_batch_report_order():

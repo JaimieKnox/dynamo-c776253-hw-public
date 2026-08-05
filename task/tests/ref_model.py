@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from functools import cmp_to_key
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
@@ -276,6 +277,18 @@ def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
     return live
 
 
+def _live_order(a, b) -> int:
+    sa = a[1][1]
+    sb = b[1][1]
+    if sa == sb:
+        return 0
+    if newer_seq(sa, sb):
+        return -1
+    if newer_seq(sb, sa):
+        return 1
+    return 0
+
+
 def reclaim(flash: Flash, journal: Journal) -> None:
     live = fold_live(journal)
     next_seq = journal.next_seq
@@ -284,7 +297,7 @@ def reclaim(flash: Flash, journal: Journal) -> None:
     journal.write_page = 0
     journal.write_off = 0
     journal.next_seq = next_seq
-    items = sorted(live.items(), key=lambda kv: kv[1][1])
+    items = sorted(live.items(), key=cmp_to_key(_live_order))
     for key, (value, _seq) in items:
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
 
@@ -574,6 +587,8 @@ class Device:
                     self.put(f"pad{i % 8}", (f"{i:04d}" + "x" * val_len)[:val_len])
             elif kind == "raise_floor":
                 write_meta(self.flash, int(op["floor"]), tear=op.get("tear"))
+            elif kind == "reboot":
+                self.journal = Journal(self.flash)
             else:
                 raise ValueError(kind)
 

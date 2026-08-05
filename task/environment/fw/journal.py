@@ -29,7 +29,7 @@ class Record:
 def newer_seq(a: int, b: int) -> bool:
     """Return True if sequence b is strictly newer than a (16-bit modular)."""
     delta = (b - a) & 0xFFFF
-    return delta != 0 and delta <= 0x8000
+    return 1 <= delta <= 32767
 
 
 def _hdr_bytes(flags: int, key_len: int, val_len: int, seq: int) -> bytes:
@@ -57,7 +57,6 @@ class Journal:
         self.write_off = 0
         self._rescan()
 
-
     def _rescan(self) -> None:
         max_seq = None
         end_page, end_off = 0, 0
@@ -84,11 +83,11 @@ class Journal:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    if max_seq is None or seq > max_seq:
+                    if max_seq is None or newer_seq(max_seq, seq):
                         max_seq = seq
+                    end_page, end_off = page, off + total
+                    saw = True
                 off += total
-                end_page, end_off = page, off
-                saw = True
         if not saw:
             self.write_page = 0
             self.write_off = 0
@@ -106,16 +105,14 @@ class Journal:
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
         """Require SEAL_HDR, SEAL_PAY, and matching pay_crc."""
-        if not (flags & SEAL_HDR):
+        if not (flags & SEAL_HDR) or not (flags & SEAL_PAY):
             return False
         pay_len = key_len + val_len
         addr = page * PAGE_SIZE + offset + HDR_SIZE
         payload = self.flash.read(addr, pay_len + 2)
         pay = payload[:pay_len]
         got = payload[pay_len] | (payload[pay_len + 1] << 8)
-        if crc16_ccitt(pay) != got:
-            return False
-        return True
+        return crc16_ccitt(pay) == got
 
     def iter_records(self) -> Iterator[Record]:
         for page in range(JOURNAL_PAGES):
@@ -215,10 +212,10 @@ class Journal:
         return seq
 
     def max_generation(self) -> int:
-        gen = 0
+        gen = None
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if rec.seq > gen:
+            if gen is None or newer_seq(gen, rec.seq):
                 gen = rec.seq
-        return gen
+        return 0 if gen is None else gen

@@ -30,3 +30,4 @@ Graded checks:
 5. `generation` is the modular sequence tip of complete records, or `0` when there are none.
 6. `anti_rollback_min` matches each pack meta floor after dual-copy recovery.
 7. `/app/smoke/run_smoke.py` still succeeds for `sample_*` after the repair.
+8. The repaired code under `/app/fw` must itself reproduce the graded recovery outputs when re-run against the job packs.

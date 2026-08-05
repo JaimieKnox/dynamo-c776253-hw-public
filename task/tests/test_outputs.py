@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 import subprocess
 import sys
 from pathlib import Path
@@ -126,3 +128,26 @@ def test_criterion_7_smoke_samples():
         timeout=60,
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
+
+
+def test_criterion_8_agent_fw_rerun():
+    """Criterion 8: repaired /app/fw must reproduce reference when re-run."""
+    tmp = Path(tempfile.mkdtemp(prefix="fw_rerun_"))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = "/app"
+    completed = subprocess.run(
+        [sys.executable, "-m", "fw", str(TRUSTED_SCRIPTS), str(tmp)],
+        cwd="/app",
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    golden = reference_by_job()
+    for job_id in trusted_job_ids():
+        path = tmp / job_id / "recovered.json"
+        assert path.is_file(), f"fw rerun missing recovered.json for {job_id}"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert payload == golden[job_id], f"{job_id} fw rerun diverges from reference"

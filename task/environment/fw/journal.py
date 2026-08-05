@@ -28,8 +28,8 @@ class Record:
 
 def newer_seq(a: int, b: int) -> bool:
     """Return True if sequence b is strictly newer than a (16-bit modular)."""
-    # Almost-correct linear compare: looks fine until sequences wrap.
-    return b > a
+    delta = (b - a) & 0xFFFF
+    return delta != 0 and delta <= 0x8000
 
 
 def _hdr_bytes(flags: int, key_len: int, val_len: int, seq: int) -> bytes:
@@ -84,7 +84,6 @@ class Journal:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    # Almost-correct: fold uses wrap, but the write cursor tip does not.
                     if max_seq is None or seq > max_seq:
                         max_seq = seq
                 off += total
@@ -116,7 +115,6 @@ class Journal:
         got = payload[pay_len] | (payload[pay_len + 1] << 8)
         if crc16_ccitt(pay) != got:
             return False
-        # Almost-correct: treat payload+CRC as durable even before SEAL_PAY.
         return True
 
     def iter_records(self) -> Iterator[Record]:

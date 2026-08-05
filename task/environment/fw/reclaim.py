@@ -25,15 +25,13 @@ def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
 def reclaim(flash: Flash, journal: Journal) -> None:
     """Compact journal: erase all journal pages and rewrite live records."""
     live = fold_live(journal)
-    # preserve next_seq across reclaim
     next_seq = journal.next_seq
     for page in range(JOURNAL_PAGES):
         flash.erase_page(page)
     journal.write_page = 0
     journal.write_off = 0
-    # Rewrite live keys then restore the preserved next_seq cursor.
+    journal.next_seq = next_seq
     items = sorted(live.items(), key=lambda kv: kv[1][1])
-    for key, (value, seq) in items:
-        journal.next_seq = seq
+    for key, (value, _seq) in items:
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
     journal.next_seq = next_seq

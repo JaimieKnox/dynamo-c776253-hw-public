@@ -1,0 +1,29 @@
+{
+  "job_id": "h_half_ring",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 1
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "old"
+    },
+    {
+      "op": "force_seq",
+      "seq": 32769
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "new"
+    },
+    {
+      "op": "put",
+      "key": "b",
+      "value": "1"
+    }
+  ]
+}

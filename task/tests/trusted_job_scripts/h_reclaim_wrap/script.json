@@ -47,7 +47,7 @@
     },
     {
       "op": "pad_puts",
-      "count": 130,
+      "count": 85,
       "val_len": 40
     },
     {

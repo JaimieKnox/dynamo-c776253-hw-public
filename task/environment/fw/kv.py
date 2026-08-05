@@ -14,7 +14,6 @@ def recover_kv(journal: Journal) -> Dict[str, str]:
         if not rec.complete:
             continue
         prev = state.get(rec.key)
-        # Almost-correct linear tip: breaks when the winner crossed wrap.
         if prev is not None and not (rec.seq > prev[0]):
             continue
         if rec.flags & TOMBSTONE:

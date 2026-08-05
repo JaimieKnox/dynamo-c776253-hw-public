@@ -117,24 +117,37 @@ def _unpack_meta(raw: bytes) -> Optional[Tuple[int, int]]:
 
 
 def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
-    if tear == "after_mirror":
-        return
-    raw = flash.read(META_PAGE * PAGE_SIZE, 8)
-    parsed = _unpack_meta(raw)
-    base = parsed[1] if parsed is not None else 0
-    next_epoch = (base + 1) & 0xFFFF
+    max_epoch = 0
+    for page in (META_PAGE, META_MIRROR_PAGE):
+        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 8))
+        if parsed is None:
+            continue
+        epoch = parsed[1]
+        if epoch > max_epoch:
+            max_epoch = epoch
+    next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
         next_epoch = 1
+    flash.erase_page(META_MIRROR_PAGE)
+    flash.program(META_MIRROR_PAGE * PAGE_SIZE, _pack_meta(floor, next_epoch))
+    if tear == "after_mirror":
+        return
     flash.erase_page(META_PAGE)
     flash.program(META_PAGE * PAGE_SIZE, _pack_meta(floor, next_epoch))
 
 
 def read_meta(flash: Flash) -> int:
-    raw = flash.read(META_PAGE * PAGE_SIZE, 8)
-    parsed = _unpack_meta(raw)
-    if parsed is None:
-        return 0
-    return parsed[0]
+    best_floor = None
+    best_epoch = None
+    for page in (META_PAGE, META_MIRROR_PAGE):
+        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 8))
+        if parsed is None:
+            continue
+        floor_v, epoch = parsed
+        if best_epoch is None or epoch > best_epoch:
+            best_epoch = epoch
+            best_floor = floor_v
+    return 0 if best_floor is None else best_floor
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
@@ -167,7 +180,6 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if newer_seq(info.generation, best.generation):
             continue
-        # Almost-correct: image_version looks useful but must not rank boot.
         if info.image_version > best.image_version:
             best_name, best = name, info
             continue

@@ -1,0 +1,31 @@
+{
+  "job_id": "h_meta_wrap",
+  "anti_rollback_min": 2,
+  "ops": [
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 65534
+    },
+    {
+      "op": "raise_floor",
+      "floor": 3
+    },
+    {
+      "op": "raise_floor",
+      "floor": 9,
+      "tear": "after_mirror"
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 9,
+      "image_version": 1
+    }
+  ]
+}

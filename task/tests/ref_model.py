@@ -537,6 +537,13 @@ class Device:
             reclaim_cb=self._reclaim,
         )
 
+    def force_meta_epoch(self, floor: int, epoch: int) -> None:
+        epoch = epoch & 0xFFFF
+        if epoch == 0:
+            epoch = 1
+        for page in (META_PAGE, META_MIRROR_PAGE):
+            _program_meta_page(self.flash, page, int(floor) & 0xFFFF, epoch)
+
     def apply_ops(self, ops: List[Dict[str, Any]]) -> None:
         for op in ops:
             kind = op["op"]
@@ -554,6 +561,8 @@ class Device:
                     generation=gen,
                     tear=op.get("tear"),
                 )
+            elif kind == "force_meta_epoch":
+                self.force_meta_epoch(int(op["floor"]), int(op["epoch"]))
             elif kind == "force_seq":
                 self.journal.next_seq = int(op["seq"]) & 0xFFFF
                 if self.journal.next_seq == 0:

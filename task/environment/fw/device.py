@@ -10,7 +10,14 @@ from .flash_hal import Flash
 from .journal import Journal
 from .kv import recover_kv
 from .reclaim import reclaim
-from .slots import promote, read_meta, select_boot_slot, write_meta
+from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE
+from .slots import (
+    _pack_meta,
+    promote,
+    read_meta,
+    select_boot_slot,
+    write_meta,
+)
 
 
 class Device:
@@ -65,6 +72,15 @@ class Device:
             tear=tear,
         )
 
+
+    def force_meta_epoch(self, floor: int, epoch: int) -> None:
+        epoch = epoch & 0xFFFF
+        if epoch == 0:
+            epoch = 1
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch)
+        for page in (META_PAGE, META_MIRROR_PAGE):
+            self.flash.erase_page(page)
+            self.flash.program(page * PAGE_SIZE, payload)
     def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, floor, tear=tear)
 
@@ -82,6 +98,8 @@ class Device:
                     int(op["image_version"]),
                     tear=op.get("tear"),
                 )
+            elif kind == "force_meta_epoch":
+                self.force_meta_epoch(int(op["floor"]), int(op["epoch"]))
             elif kind == "force_seq":
                 self.journal.next_seq = int(op["seq"]) & 0xFFFF
                 if self.journal.next_seq == 0:

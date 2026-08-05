@@ -2,6 +2,8 @@ You are repairing embedded recovery code for a dual-bank OTA device.
 
 Code lives in `/app/fw`. Correct behavior is defined only by `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md`. Do not invent rules that conflict with those documents.
 
+Under the journal wrap rule in `/app/docs/journal.md`, a sequence is newer only on a forward 16-bit distance of `1` through `32767`. An exact antipode pair (forward distance `32768`) is not newer; retain the already-selected sequence for KV fold, generation tip, meta epoch selection, and boot generation ties.
+
 Job packs sit under `/app/jobs`. The `sample_*` packs are intentionally gentle and stay away from torn commits, sequence wrap near the top of the counter, reclaim, promote interruption, meta floor raise, and anti-rollback rejection. The `h_*` packs stress those corners, sometimes in combination.
 
 Bring firmware recovery in line with the docs, then generate outputs for every pack under `/app/jobs` by running:

@@ -39,7 +39,7 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal write-cursor tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter. A linear numeric maximum is wrong after wrap: it can pin the write cursor behind the true tip and make later appends reuse sequences. Output `generation` is that complete-record tip, or `0` if none.
+Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal write-cursor tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`; keep the sequence already selected. A linear numeric maximum is wrong after wrap: it can pin the write cursor behind the true tip and make later appends reuse sequences. Output `generation` is that complete-record tip, or `0` if none.
 
 ## KV fold
 

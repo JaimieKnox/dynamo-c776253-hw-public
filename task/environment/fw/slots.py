@@ -116,7 +116,7 @@ def _unpack_meta(raw: bytes):
 
 def _gen_newer(a: int, b: int) -> bool:
     delta = (b - a) & 0xFFFF
-    return 1 <= delta <= 32768
+    return 1 <= delta <= 32767
 
 
 def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: int) -> None:
@@ -192,10 +192,15 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if _gen_newer(best.generation, info.generation):
+            if info.generation > best.generation:
             best_name, best = name, info
             continue
-        if _gen_newer(info.generation, best.generation):
+        if info.generation < best.generation:
+            continue
+            if info.image_version > best.image_version:
+            best_name, best = name, info
+            continue
+        if info.image_version < best.image_version:
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
@@ -212,6 +217,14 @@ def promote(
 ) -> None:
     other = "B" if which == "A" else "A"
     sid = SLOT_ID[which]
+    # Stamp generation from a fresh journal scan.
+    from .journal import Journal
+
+    gen = 0
+    for rec in Journal(flash).iter_records():
+        if rec.complete:
+            gen = rec.seq
+    generation = gen
     cand = SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True)
     write_slot(flash, which, cand)
     if tear == "after_candidate":

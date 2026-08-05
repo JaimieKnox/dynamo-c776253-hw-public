@@ -59,6 +59,8 @@ The `set_policy` operation writes a new policy word through the same dual-copy p
 
 ## Promote phases
 
+The generation field stamped into the slot page is the modular complete-record tip from the journal at promote time (the same tip used for output `generation`), not the flash-order last complete sequence and not `image_version`.
+
 1. Write the target slot as `CANDIDATE` with the requested versions and current journal generation.
 2. If the other slot is `ACTIVE`, rewrite it as `INVALID`.
 3. Rewrite the target slot as `ACTIVE`.
@@ -69,4 +71,4 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 Boot selection must respect the anti-rollback floor (a slot is eligible only when its `security_version` is greater than or equal to the recovered floor), prefer a confirmed-active slot when one is eligible, and otherwise choose among eligible candidates by higher security version. Equal security ties break by the newer stamped generation under the journal wrap rule, then by lower slot id.
 
-`image_version` is metadata only. Equal security and equal generation under the wrap rule fall through to lower `slot_id` only.
+`image_version` is metadata only and must not affect boot ranking. Equal security ties break by newer stamped generation under the journal wrap rule, then by lower `slot_id` only.

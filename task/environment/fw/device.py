@@ -62,10 +62,7 @@ class Device:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        gen = 0
-        for rec in self.journal.iter_records():
-            if rec.complete:
-                gen = rec.seq
+        gen = self.journal.max_generation()
         promote(
             self.flash,
             slot,

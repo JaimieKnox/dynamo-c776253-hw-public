@@ -31,7 +31,7 @@
       "op": "promote",
       "slot": "B",
       "security_version": 2,
-      "image_version": 1,
+      "image_version": 99,
       "tear": "after_candidate"
     }
   ]

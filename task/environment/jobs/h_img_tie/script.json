@@ -1,14 +1,14 @@
 {
-  "job_id": "h_gen_antipode",
+  "job_id": "h_img_tie",
   "anti_rollback_min": 1,
   "ops": [
     {
       "op": "force_seq",
-      "seq": 1
+      "seq": 10
     },
     {
       "op": "put",
-      "key": "a",
+      "key": "k",
       "value": "1"
     },
     {
@@ -20,18 +20,18 @@
     },
     {
       "op": "force_seq",
-      "seq": 32769
+      "seq": 10
     },
     {
       "op": "put",
-      "key": "b",
+      "key": "m",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "B",
       "security_version": 2,
-      "image_version": 99,
+      "image_version": 50,
       "tear": "after_candidate"
     }
   ]

@@ -1,7 +1,11 @@
 {
-  "job_id": "h_active_floor",
-  "anti_rollback_min": 3,
+  "job_id": "h_policy_active",
+  "anti_rollback_min": 2,
   "ops": [
+    {
+      "op": "set_policy",
+      "policy": 2
+    },
     {
       "op": "put",
       "key": "k",
@@ -14,14 +18,10 @@
       "image_version": 1
     },
     {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
       "op": "promote",
       "slot": "B",
-      "security_version": 5,
-      "image_version": 9,
+      "security_version": 4,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

@@ -76,12 +76,15 @@ class Device:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)
     def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, floor, tear=tear)
+
+    def set_policy(self, policy: int, tear: Optional[str] = None) -> None:
+        write_meta(self.flash, read_meta(self.flash), policy=int(policy), tear=tear)
 
     def apply_ops(self, ops: List[Dict[str, Any]]) -> None:
         for op in ops:
@@ -107,6 +110,8 @@ class Device:
                 self.pad_puts(int(op.get("count", 40)), int(op.get("val_len", 40)))
             elif kind == "raise_floor":
                 self.raise_floor(int(op["floor"]), tear=op.get("tear"))
+            elif kind == "set_policy":
+                self.set_policy(int(op["policy"]), tear=op.get("tear"))
             elif kind == "reboot":
                 self.journal = Journal(self.flash)
             else:

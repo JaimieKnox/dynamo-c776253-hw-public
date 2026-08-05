@@ -1,7 +1,11 @@
 {
-  "job_id": "h_floor_eq",
-  "anti_rollback_min": 4,
+  "job_id": "h_policy_floor",
+  "anti_rollback_min": 3,
   "ops": [
+    {
+      "op": "set_policy",
+      "policy": 1
+    },
     {
       "op": "put",
       "key": "k",
@@ -10,7 +14,7 @@
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 4,
+      "security_version": 3,
       "image_version": 1
     }
   ]

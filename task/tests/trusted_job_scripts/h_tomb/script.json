@@ -17,14 +17,14 @@
       "key": "victim"
     },
     {
-      "op": "pad_puts",
-      "count": 120,
-      "val_len": 40
-    },
-    {
       "op": "put",
       "key": "keep",
       "value": "2"
+    },
+    {
+      "op": "pad_puts",
+      "count": 120,
+      "val_len": 40
     }
   ]
 }

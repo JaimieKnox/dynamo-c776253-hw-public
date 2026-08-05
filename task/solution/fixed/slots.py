@@ -10,14 +10,10 @@ from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
-
-EMPTY = 0
-CANDIDATE = 1
-ACTIVE = 2
-INVALID = 3
-
+EMPTY, CANDIDATE, ACTIVE, INVALID = 0, 1, 2, 3
 SLOT_ID = {"A": 0, "B": 1}
-ID_SLOT = {0: "A", 1: "B"}
+REQUIRE_NEWER_SECURITY = 0x0001
+IGNORE_ACTIVE_PREF = 0x0002
 
 
 @dataclass
@@ -57,36 +53,37 @@ def _pack_slot(
     return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
 
 
+def _unpack_slot(raw: bytes) -> SlotInfo:
+    if len(raw) < 14:
+        return SlotInfo(EMPTY, 0, 0, 0, 0, False)
+    magic = raw[0] | (raw[1] << 8)
+    if magic != MAGIC_SLOT:
+        return SlotInfo(EMPTY, 0, 0, 0, 0, False)
+    body, crc = raw[:12], raw[12] | (raw[13] << 8)
+    if crc16_ccitt(body) != crc:
+        return SlotInfo(EMPTY, 0, 0, 0, 0, False)
+    return SlotInfo(
+        raw[2],
+        raw[3],
+        raw[4] | (raw[5] << 8),
+        raw[6] | (raw[7] << 8),
+        raw[8] | (raw[9] << 8) | (raw[10] << 16) | (raw[11] << 24),
+        True,
+    )
+
+
 def write_slot(flash: Flash, which: str, info: SlotInfo) -> None:
     page = SLOT_A_PAGE if which == "A" else SLOT_B_PAGE
     flash.erase_page(page)
-    blob = _pack_slot(
-        info.state,
-        info.slot_id,
-        info.security_version,
-        info.generation,
-        info.image_version,
-    )
-    flash.program(page * PAGE_SIZE, blob)
+    flash.program(page * PAGE_SIZE, _pack_slot(info.state, info.slot_id, info.security_version, info.generation, info.image_version))
 
 
 def read_slot(flash: Flash, which: str) -> SlotInfo:
     page = SLOT_A_PAGE if which == "A" else SLOT_B_PAGE
-    raw = flash.read(page * PAGE_SIZE, 14)
-    magic = raw[0] | (raw[1] << 8)
-    if magic != MAGIC_SLOT:
-        return SlotInfo(EMPTY, SLOT_ID[which], 0, 0, 0, False)
-    state = raw[2]
-    slot_id = raw[3]
-    sec = raw[4] | (raw[5] << 8)
-    gen = raw[6] | (raw[7] << 8)
-    img = raw[8] | (raw[9] << 8) | (raw[10] << 16) | (raw[11] << 24)
-    crc = raw[12] | (raw[13] << 8)
-    ok = crc16_ccitt(raw[:12]) == crc
-    return SlotInfo(state, slot_id, sec, gen, img, ok)
+    return _unpack_slot(flash.read(page * PAGE_SIZE, 14))
 
 
-def _pack_meta(floor: int, epoch: int) -> bytes:
+def _pack_meta(floor: int, epoch: int, policy: int) -> bytes:
     body = bytes(
         [
             MAGIC_META & 0xFF,
@@ -95,24 +92,26 @@ def _pack_meta(floor: int, epoch: int) -> bytes:
             (floor >> 8) & 0xFF,
             epoch & 0xFF,
             (epoch >> 8) & 0xFF,
+            policy & 0xFF,
+            (policy >> 8) & 0xFF,
         ]
     )
     c = crc16_ccitt(body)
     return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
 
 
-def _unpack_meta(raw: bytes) -> Optional[Tuple[int, int]]:
-    if len(raw) < 8:
+def _unpack_meta(raw: bytes):
+    if len(raw) < 10:
         return None
     magic = raw[0] | (raw[1] << 8)
     if magic != MAGIC_META:
         return None
+    if crc16_ccitt(raw[:8]) != (raw[8] | (raw[9] << 8)):
+        return None
     floor = raw[2] | (raw[3] << 8)
     epoch = raw[4] | (raw[5] << 8)
-    crc = raw[6] | (raw[7] << 8)
-    if crc16_ccitt(raw[:6]) != crc:
-        return None
-    return floor, epoch
+    policy = raw[6] | (raw[7] << 8)
+    return floor, epoch, policy
 
 
 def _gen_newer(a: int, b: int) -> bool:
@@ -120,15 +119,32 @@ def _gen_newer(a: int, b: int) -> bool:
     return 1 <= delta <= 32767
 
 
-def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int) -> None:
+def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: int) -> None:
     flash.erase_page(page)
-    flash.program(page * PAGE_SIZE, _pack_meta(floor, epoch))
+    flash.program(page * PAGE_SIZE, _pack_meta(floor, epoch, policy))
 
 
-def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
+def _read_meta_full(flash: Flash):
+    best = None  # (epoch, floor, policy)
+    for page in (META_PAGE, META_MIRROR_PAGE):
+        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 10))
+        if parsed is None:
+            continue
+        floor, epoch, policy = parsed
+        if best is None or _gen_newer(best[0], epoch):
+            best = (epoch, floor, policy)
+    if best is None:
+        return 0, 0
+    return best[1], best[2]
+
+
+def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Optional[str] = None) -> None:
+    cur_floor, cur_policy = _read_meta_full(flash)
+    if policy is None:
+        policy = cur_policy
     max_epoch = 0
     for page in (META_PAGE, META_MIRROR_PAGE):
-        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 8))
+        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 10))
         if parsed is None:
             continue
         epoch = parsed[1]
@@ -137,29 +153,24 @@ def write_meta(flash: Flash, floor: int, tear: Optional[str] = None) -> None:
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
         next_epoch = 1
-    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch)
+    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
     if tear == "after_mirror":
         return
-    _program_meta_page(flash, META_PAGE, floor, next_epoch)
+    _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
 
 
 def read_meta(flash: Flash) -> int:
-    best_floor = None
-    best_epoch = None
-    for page in (META_PAGE, META_MIRROR_PAGE):
-        parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 8))
-        if parsed is None:
-            continue
-        floor, epoch = parsed
-        if best_epoch is None or _gen_newer(best_epoch, epoch):
-            best_epoch = epoch
-            best_floor = floor
-    return 0 if best_floor is None else best_floor
+    floor, _policy = _read_meta_full(flash)
+    return floor
+
+
+def read_policy(flash: Flash) -> int:
+    _floor, policy = _read_meta_full(flash)
+    return policy
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
-    """Select boot slot: anti-rollback floor, prefer ACTIVE, else rank pool."""
-    floor = read_meta(flash)
+    floor, policy = _read_meta_full(flash)
     pool: List[Tuple[str, SlotInfo]] = []
     for name in ("A", "B"):
         info = read_slot(flash, name)
@@ -167,13 +178,20 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.state not in (ACTIVE, CANDIDATE):
             continue
-        if info.security_version < floor:
-            continue
+        if policy & REQUIRE_NEWER_SECURITY:
+            if info.security_version <= floor:
+                continue
+        else:
+            if info.security_version < floor:
+                continue
         pool.append((name, info))
     if not pool:
         return None, None, floor
-    active = [(n, i) for n, i in pool if i.state == ACTIVE]
-    chosen = active if active else pool
+    if policy & IGNORE_ACTIVE_PREF:
+        chosen = pool
+    else:
+        active = [(n, i) for n, i in pool if i.state == ACTIVE]
+        chosen = active if active else pool
     best_name, best = chosen[0]
     for name, info in chosen[1:]:
         if info.security_version > best.security_version:

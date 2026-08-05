@@ -54,6 +54,7 @@ Closed set of `op` values:
 - `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch for wrap tests)
 - `pad_puts` with `count` and optional `val_len` (writes disposable keys to pressure reclaim)
 - `raise_floor` with `floor` int and optional `tear` (raises the anti-rollback security floor)
+- `set_policy` with `policy` int and optional `tear` (writes the meta policy word)
 - `reboot` (rebuilds the in-memory journal view from flash, as after a power cycle)
 
 Closed set of journal tear phases: `after_header`, `after_payload`.

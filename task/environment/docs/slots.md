@@ -30,22 +30,32 @@ Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share t
 | magic | u16 | `0xCAFE` |
 | anti_rollback_min | u16 | security floor |
 | epoch | u16 | copy freshness counter |
-| crc16 | u16 | CRC16-CCITT over the six bytes before `crc16` |
+| policy | u16 | boot policy bits |
+| crc16 | u16 | CRC16-CCITT over the eight bytes before `crc16` |
+
+### Policy bits
+
+- bit 0 (`0x0001`) `REQUIRE_NEWER_SECURITY`: an eligible slot must have `security_version` strictly greater than the recovered floor (equality is not enough).
+- bit 1 (`0x0002`) `IGNORE_ACTIVE_PREF`: do not prefer ACTIVE; rank all eligible ACTIVE and CANDIDATE slots together by security, then generation, then slot id.
+
+When a bit is clear, the default boot rules apply for that concern. Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor.
 
 ### Meta write order
 
 1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`. Epoch maximum uses the journal half-ring newer rule.
-2. Erase and program the mirror page with the new floor and epoch.
+2. Erase and program the mirror page with the new floor, epoch, and current policy word.
 3. If tear `after_mirror` is requested, stop here. Do not program the primary page after an `after_mirror` tear.
-4. Erase and program the primary page with the same floor and epoch.
+4. Erase and program the primary page with the same floor, epoch, and policy word.
 
 ### Meta read
 
-Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor. If no copy validates, the floor is `0`.
+Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor and policy. If no copy validates, the floor is `0` and policy is `0`.
 
-### raise_floor
+### raise_floor and set_policy
 
-The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear.
+The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear, preserving the current policy word.
+
+The `set_policy` operation writes a new policy word through the same dual-copy path, preserving the current floor.
 
 ## Promote phases
 

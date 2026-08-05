@@ -158,7 +158,7 @@ def read_meta(flash: Flash) -> int:
 
 
 def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
-    """Select boot slot among eligible ACTIVE/CANDIDATE pages."""
+    """Select boot slot: anti-rollback floor, prefer ACTIVE, else rank pool."""
     floor = read_meta(flash)
     pool: List[Tuple[str, SlotInfo]] = []
     for name in ("A", "B"):
@@ -167,7 +167,7 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.state not in (ACTIVE, CANDIDATE):
             continue
-        if info.security_version < floor:
+        if info.security_version <= floor:
             continue
         pool.append((name, info))
     if not pool:

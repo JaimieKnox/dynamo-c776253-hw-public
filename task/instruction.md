@@ -4,7 +4,7 @@ Code lives in `/app/fw`. Correct behavior is defined only by `/app/docs/README.m
 
 Under the journal wrap rule in `/app/docs/journal.md`, a sequence is newer only on a forward 16-bit distance of `1` through `32767`. An exact antipode pair (forward distance `32768`) is not newer. Retain the already-selected sequence for KV fold, generation tip, meta epoch selection, and boot generation ties.
 
-Job packs sit under `/app/jobs`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise wrap, reclaim, meta, and boot corners, sometimes in combination.
+Job packs sit under `/app/jobs`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise boot eligibility, ACTIVE preference, antipode generation ties, torn meta, and tombstone reclaim, sometimes in combination.
 
 Bring firmware recovery in line with the docs, then generate outputs for every pack under `/app/jobs` by running:
 

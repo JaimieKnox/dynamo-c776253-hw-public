@@ -1,0 +1,28 @@
+{
+  "job_id": "h_active_floor",
+  "anti_rollback_min": 3,
+  "ops": [
+    {
+      "op": "put",
+      "key": "k",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 3,
+      "image_version": 1
+    },
+    {
+      "op": "raise_floor",
+      "floor": 3
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 5,
+      "image_version": 9,
+      "tear": "after_candidate"
+    }
+  ]
+}

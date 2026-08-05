@@ -1,0 +1,17 @@
+{
+  "job_id": "h_floor_eq",
+  "anti_rollback_min": 4,
+  "ops": [
+    {
+      "op": "put",
+      "key": "k",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 4,
+      "image_version": 1
+    }
+  ]
+}

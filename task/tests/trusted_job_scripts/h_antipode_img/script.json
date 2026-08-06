@@ -1,5 +1,5 @@
 {
-  "job_id": "h_stamp_wrap",
+  "job_id": "h_antipode_img",
   "anti_rollback_min": 1,
   "ops": [
     {
@@ -8,42 +8,33 @@
     },
     {
       "op": "force_seq",
-      "seq": 10
+      "seq": 32769
     },
     {
       "op": "put",
-      "key": "p",
-      "value": "1"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65500
-    },
-    {
-      "op": "put",
-      "key": "q",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "slot": "A",
-      "security_version": 3,
-      "image_version": 1
-    },
-    {
-      "op": "force_seq",
-      "seq": 20
-    },
-    {
-      "op": "put",
-      "key": "r",
+      "key": "b",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 3,
-      "image_version": 99,
+      "security_version": 2,
+      "image_version": 99
+    },
+    {
+      "op": "force_seq",
+      "seq": 1
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 2,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

@@ -14,7 +14,7 @@ The host flash HAL rewrites programmed bytes so two-phase header seals can set `
 - Anti-rollback meta primary is page 30
 - Anti-rollback meta mirror is page 31
 
-See `journal.md`, `slots.md`, and `reclaim.md` for normative recovery rules.
+Normative recovery behavior is the end-to-end invariants in `journal.md`, `slots.md`, and `reclaim.md`.
 
 ## Batch runner
 
@@ -37,11 +37,11 @@ For each job directory under `/app/jobs/<job_id>/script.json` the runner applies
 }
 ```
 
-- `kv` maps UTF-8 keys to UTF-8 values after correct journal fold (keys sorted when serialized with `sort_keys`)
-- `boot_slot` is `"A"`, `"B"`, or `null`
-- `security_version` is taken from the selected slot or `null` when none
-- `generation` is the modular sequence tip among complete journal records under the journal newer rule, or `0` if none
-- `anti_rollback_min` is the meta floor value after dual-copy meta recovery
+- `kv` is the journal fold result after all ops
+- `boot_slot` is `"A"`, `"B"`, or `null` under the boot selection invariant
+- `security_version` comes from the selected slot, or `null`
+- `generation` is the modular complete-record tip, or `0` if none
+- `anti_rollback_min` is the recovered meta floor
 
 ## Job operations
 
@@ -51,14 +51,10 @@ Closed set of `op` values:
 - `delete` with `key`, optional `tear`
 - `promote` with `slot` (`A` or `B`), `security_version`, `image_version`, optional `tear`
 - `force_seq` with `seq` (sets the journal next sequence counter)
-- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch for wrap tests)
+- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch while preserving the current policy word)
 - `pad_puts` with `count` and optional `val_len` (writes disposable keys to pressure reclaim)
-- `raise_floor` with `floor` int and optional `tear` (raises the anti-rollback security floor)
-- `set_policy` with `policy` int and optional `tear` (writes the meta policy word)
-- `reboot` (rebuilds the in-memory journal view from flash, as after a power cycle)
+- `raise_floor` with `floor` int and optional `tear`
+- `set_policy` with `policy` int and optional `tear`
+- `reboot` (rebuilds the in-memory journal view from flash)
 
-Closed set of journal tear phases: `after_header`, `after_payload`.
-
-Closed set of promote tear phases: `after_candidate`, `after_invalidate`.
-
-Closed set of meta tear phases: `after_mirror`.
+Closed tear sets: journal `after_header` / `after_payload`; promote `after_candidate` / `after_invalidate`; meta `after_mirror`.

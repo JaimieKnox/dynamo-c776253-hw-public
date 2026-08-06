@@ -1,4 +1,4 @@
-"""A/B OTA slot metadata and boot selection ."""
+"""A/B OTA slot metadata and boot selection (corrected)."""
 
 from __future__ import annotations
 
@@ -131,7 +131,7 @@ def _read_meta_full(flash: Flash):
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or epoch > best[0]:
+        if best is None or _gen_newer(best[0], epoch):
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0
@@ -148,7 +148,7 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         if parsed is None:
             continue
         epoch = parsed[1]
-        if epoch > max_epoch:
+        if max_epoch == 0 or _gen_newer(max_epoch, epoch):
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
@@ -178,13 +178,20 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.state not in (ACTIVE, CANDIDATE):
             continue
-        if info.security_version < floor:
-            continue
+        if policy & REQUIRE_NEWER_SECURITY:
+            if info.security_version <= floor:
+                continue
+        else:
+            if info.security_version < floor:
+                continue
         pool.append((name, info))
     if not pool:
         return None, None, floor
-    active = [(n, i) for n, i in pool if i.state == ACTIVE]
-    chosen = active if active else pool
+    if policy & IGNORE_ACTIVE_PREF:
+        chosen = pool
+    else:
+        active = [(n, i) for n, i in pool if i.state == ACTIVE]
+        chosen = active if active else pool
     best_name, best = chosen[0]
     for name, info in chosen[1:]:
         if info.security_version > best.security_version:
@@ -192,11 +199,12 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if info.generation > best.generation:
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if info.generation < best.generation:
+        if _gen_newer(info.generation, best.generation):
             continue
+        # Prefer the higher build stamp when generations are unordered.
         if info.image_version > best.image_version:
             best_name, best = name, info
             continue
@@ -217,14 +225,6 @@ def promote(
 ) -> None:
     other = "B" if which == "A" else "A"
     sid = SLOT_ID[which]
-    # Stamp generation from a fresh journal scan.
-    from .journal import Journal
-
-    gen = 0
-    for rec in Journal(flash).iter_records():
-        if rec.complete:
-            gen = rec.seq
-    generation = gen
     cand = SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True)
     write_slot(flash, which, cand)
     if tear == "after_candidate":

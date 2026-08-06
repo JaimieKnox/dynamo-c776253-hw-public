@@ -6,18 +6,19 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .flash_hal import Flash
+from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, Flash
 from .journal import Journal
 from .kv import recover_kv
 from .reclaim import reclaim
-from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE
 from .slots import (
     _pack_meta,
+    _read_meta_full,
     promote,
     read_meta,
     select_boot_slot,
     write_meta,
 )
+
 
 class Device:
     def __init__(self, anti_rollback_min: int = 1):
@@ -25,7 +26,6 @@ class Device:
         write_meta(self.flash, anti_rollback_min)
         self.journal = Journal(self.flash)
 
-    
     def _reclaim(self) -> None:
         reclaim(self.flash, self.journal)
         self.journal._rescan()
@@ -49,7 +49,6 @@ class Device:
         )
 
     def pad_puts(self, count: int, val_len: int = 40) -> None:
-        # Reuse a small key set so reclaim can discard obsolete versions.
         for i in range(count):
             k = f"pad{i % 8}"
             v = (f"{i:04d}" + "x" * val_len)[:val_len]
@@ -76,10 +75,12 @@ class Device:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
+        _floor, policy = _read_meta_full(self.flash)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)
+
     def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, floor, tear=tear)
 
@@ -118,7 +119,6 @@ class Device:
                 raise ValueError(f"unknown op {kind}")
 
     def recover(self, job_id: str) -> Dict[str, Any]:
-        # fresh Journal view over same flash
         j = Journal(self.flash)
         kv = recover_kv(j)
         boot, sec, floor = select_boot_slot(self.flash)
@@ -129,14 +129,16 @@ class Device:
             "boot_slot": boot,
             "security_version": sec,
             "generation": gen,
-            "anti_rollback_min": floor if floor else read_meta(self.flash),
+            "anti_rollback_min": floor,
         }
+
 
 def run_job(script: Dict[str, Any]) -> Dict[str, Any]:
     floor = int(script.get("anti_rollback_min", 1))
     dev = Device(anti_rollback_min=floor)
     dev.apply_ops(script.get("ops", []))
     return dev.recover(script["job_id"])
+
 
 def run_jobs_dir(jobs_dir: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)

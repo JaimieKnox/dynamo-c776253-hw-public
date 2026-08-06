@@ -421,9 +421,9 @@ def _unpack_meta(raw: bytes):
     return floor, epoch, policy
 
 
-def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int) -> None:
+def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: int = 0) -> None:
     flash.erase_page(page)
-    flash.program(page * PAGE_SIZE, _pack_meta(floor, epoch))
+    flash.program(page * PAGE_SIZE, _pack_meta(floor, epoch, policy))
 
 
 
@@ -578,8 +578,15 @@ class Device:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
+        _cur_floor, policy = _read_meta_full(self.flash)
         for page in (META_PAGE, META_MIRROR_PAGE):
-            _program_meta_page(self.flash, page, int(floor) & 0xFFFF, epoch)
+            _program_meta_page(
+                self.flash,
+                page,
+                int(floor) & 0xFFFF,
+                epoch,
+                policy & 0xFFFF,
+            )
 
     def apply_ops(self, ops: List[Dict[str, Any]]) -> None:
         for op in ops:

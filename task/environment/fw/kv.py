@@ -1,4 +1,4 @@
-"""Key-value recovery fold that respects tombstones."""
+"""Key-value recovery fold that respects tombstones (corrected)."""
 
 from __future__ import annotations
 

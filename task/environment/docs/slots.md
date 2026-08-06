@@ -8,8 +8,8 @@
 | state | u8 | see states |
 | slot_id | u8 | `0` for A, `1` for B |
 | security_version | u16 | |
-| generation | u16 | copied from journal generation at promote time |
-| image_version | u32 | informational build stamp stored on the slot page |
+| generation | u16 | journal generation tip at promote time |
+| image_version | u32 | informational build stamp |
 | crc16 | u16 | CRC16-CCITT over the twelve bytes before `crc16` |
 
 ## States (closed set)
@@ -23,7 +23,7 @@ A slot page is usable only when magic and CRC validate.
 
 ## Anti-rollback meta (dual copy)
 
-Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share the same little-endian layout:
+Primary meta lives on page 30. Mirror meta lives on page 31.
 
 | Field | Size | Notes |
 |-------|------|-------|
@@ -40,37 +40,16 @@ Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share t
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor. Boot selection applies each set bit as a constraint on the eligibility and ranking steps below. When a bit is clear, the default rule for that step applies.
+Policy travels with the floor in both meta copies. Planting a test epoch pair preserves the current policy word.
 
-### Meta write order
+### Dual-copy recovery invariant
 
-1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`. Epoch maximum uses the journal half-ring newer rule.
-2. Erase and program the mirror page with the new floor, epoch, and current policy word.
-3. If tear `after_mirror` is requested, stop here with only the mirror page updated.
-4. Otherwise erase and program the primary page with the same floor, epoch, and policy word.
+Among copies that validate magic and CRC, the recovered floor and policy are those of the copy whose epoch is newer under the journal half-ring rule. Updates program the mirror first, then the primary, with the next epoch equal to one more than the half-ring-maximum valid epoch, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
 
-### Meta read
+### Promote invariant
 
-Consider each copy that validates magic and CRC. Choose the copy whose epoch is newer under the journal half-ring rule. Return that copy's floor and policy. If no copy validates, the floor is `0` and policy is `0`.
+Promoting a slot writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped `generation` equals the modular complete-record journal tip at promote time, the same tip reported as output `generation`.
 
-### raise_floor and set_policy
+### Boot selection invariant
 
-The `raise_floor` operation raises the security floor through that dual-copy write path, including the optional `after_mirror` tear, preserving the current policy word.
-
-The `set_policy` operation writes a new policy word through the same dual-copy path, preserving the current floor.
-
-## Promote phases
-
-The generation field stamped into the slot page is the modular complete-record tip from the journal at promote time (the same tip used for output `generation`).
-
-1. Write the target slot as `CANDIDATE` with the requested versions and current journal generation.
-2. If the other slot is `ACTIVE`, rewrite it as `INVALID`.
-3. Rewrite the target slot as `ACTIVE`.
-
-Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after phase 2.
-
-## Boot selection
-
-1. Build the eligible pool from valid `ACTIVE` and `CANDIDATE` slots under the recovered floor and policy. With `REQUIRE_NEWER_SECURITY` clear, a slot is eligible when `security_version >= floor`. With that bit set, eligibility requires `security_version > floor`.
-2. When `IGNORE_ACTIVE_PREF` is clear and at least one eligible `ACTIVE` slot exists, restrict the ranking pool to those `ACTIVE` slots. With that bit set, rank every eligible `ACTIVE` and `CANDIDATE` together.
-3. Rank that pool by higher `security_version`, then by newer stamped `generation` under the journal half-ring rule, then by lower `slot_id`.
+Eligible slots are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `security_version >= floor`; with that bit set, `security_version > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` slots. Otherwise ranking considers every eligible slot. Order by higher `security_version`, then newer stamped `generation` under the journal half-ring rule, then lower `slot_id`.

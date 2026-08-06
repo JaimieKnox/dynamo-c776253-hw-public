@@ -1,4 +1,4 @@
-"""Device orchestration: apply job scripts and emit recovered JSON ."""
+"""Device orchestration: apply job scripts and emit recovered JSON."""
 
 from __future__ import annotations
 
@@ -19,15 +19,6 @@ from .slots import (
 )
 
 
-def _flash_order_complete_tip(journal: Journal) -> int:
-    """Return the sequence of the last complete record in flash order."""
-    tip = 0
-    for rec in journal.iter_records():
-        if rec.complete:
-            tip = rec.seq
-    return tip
-
-
 class Device:
     def __init__(self, anti_rollback_min: int = 1):
         self.flash = Flash()
@@ -36,7 +27,9 @@ class Device:
 
     def _reclaim(self) -> None:
         reclaim(self.flash, self.journal)
+        keep_next = self.journal.next_seq
         self.journal._rescan()
+        self.journal.next_seq = keep_next
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.journal.append(
@@ -69,8 +62,7 @@ class Device:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        # Stamp from the flash-order complete tip used by the append frontier helper.
-        gen = _flash_order_complete_tip(self.journal)
+        gen = self.journal.max_generation()
         promote(
             self.flash,
             slot,

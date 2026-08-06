@@ -157,7 +157,9 @@ class Journal:
         while True:
             if self.write_page >= JOURNAL_PAGES:
                 reclaim_cb()
+                keep_next = self.next_seq
                 self._rescan()
+                self.next_seq = keep_next
                 if self.write_page >= JOURNAL_PAGES:
                     raise RuntimeError("journal full after reclaim")
                 continue
@@ -166,7 +168,9 @@ class Journal:
             nxt = self.write_page + 1
             if nxt >= JOURNAL_PAGES:
                 reclaim_cb()
+                keep_next = self.next_seq
                 self._rescan()
+                self.next_seq = keep_next
                 continue
             self.write_page = nxt
             self.write_off = 0

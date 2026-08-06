@@ -8,7 +8,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 65530
+      "seq": 65500
     },
     {
       "op": "put",
@@ -17,7 +17,7 @@
     },
     {
       "op": "pad_puts",
-      "count": 120,
+      "count": 113,
       "val_len": 40
     },
     {
@@ -26,21 +26,8 @@
       "value": "v2"
     },
     {
-      "op": "force_seq",
-      "seq": 10
-    },
-    {
       "op": "put",
       "key": "w1",
-      "value": "1"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65500
-    },
-    {
-      "op": "put",
-      "key": "w2",
       "value": "1"
     },
     {
@@ -50,12 +37,8 @@
       "image_version": 1
     },
     {
-      "op": "force_seq",
-      "seq": 5
-    },
-    {
       "op": "put",
-      "key": "w3",
+      "key": "w2",
       "value": "1"
     },
     {

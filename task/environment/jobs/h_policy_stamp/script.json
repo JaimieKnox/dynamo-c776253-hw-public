@@ -1,14 +1,19 @@
 {
-  "job_id": "h_plant_stamp",
+  "job_id": "h_policy_stamp",
   "anti_rollback_min": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 2
+      "policy": 3
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 100
     },
     {
       "op": "force_seq",
-      "seq": 100
+      "seq": 10
     },
     {
       "op": "put",
@@ -17,7 +22,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 40000
+      "seq": 65500
     },
     {
       "op": "put",
@@ -27,12 +32,12 @@
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 2,
-      "image_version": 1
+      "security_version": 3,
+      "image_version": 90
     },
     {
       "op": "force_seq",
-      "seq": 50
+      "seq": 32732
     },
     {
       "op": "put",
@@ -42,7 +47,7 @@
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 2,
+      "security_version": 3,
       "image_version": 1,
       "tear": "after_candidate"
     }

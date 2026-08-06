@@ -51,7 +51,7 @@ Closed set of `op` values:
 - `delete` with `key`, optional `tear`
 - `promote` with `slot` (`A` or `B`), `security_version`, `image_version`, optional `tear`
 - `force_seq` with `seq` (sets the journal next sequence counter)
-- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch while preserving the current policy word)
+- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch while preserving the current policy word, never clearing policy bits)
 - `pad_puts` with `count` and optional `val_len` (writes disposable keys to pressure reclaim)
 - `raise_floor` with `floor` int and optional `tear`
 - `set_policy` with `policy` int and optional `tear`

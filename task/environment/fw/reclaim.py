@@ -1,4 +1,4 @@
-"""Journal reclaim / compaction (corrected)."""
+"""Journal reclaim / compaction."""
 
 from __future__ import annotations
 
@@ -35,9 +35,9 @@ def _live_order(a, b) -> int:
     sb = b[1][1]
     if sa == sb:
         return 0
-    if newer_seq(sa, sb):
+    if sa < sb:
         return -1
-    if newer_seq(sb, sa):
+    if sa > sb:
         return 1
     return 0
 
@@ -54,3 +54,4 @@ def reclaim(flash: Flash, journal: Journal) -> None:
     items = sorted(live.items(), key=cmp_to_key(_live_order))
     for key, (value, _seq) in items:
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
+    journal.next_seq = next_seq

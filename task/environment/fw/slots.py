@@ -1,4 +1,4 @@
-"""A/B OTA slot metadata and boot selection (corrected)."""
+"""A/B OTA slot metadata and boot selection."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
+from .journal import Journal
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -215,6 +216,15 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
     return best_name, best.security_version, floor
 
 
+def _sealed_scan_tip(flash: Flash) -> int:
+    """Return the sealed sequence found last while scanning journal pages."""
+    tip = 0
+    for rec in Journal(flash).iter_records():
+        if rec.complete:
+            tip = rec.seq
+    return tip
+
+
 def promote(
     flash: Flash,
     which: str,
@@ -225,6 +235,7 @@ def promote(
 ) -> None:
     other = "B" if which == "A" else "A"
     sid = SLOT_ID[which]
+    generation = _sealed_scan_tip(flash)
     cand = SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True)
     write_slot(flash, which, cand)
     if tear == "after_candidate":

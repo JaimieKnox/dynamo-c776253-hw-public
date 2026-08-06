@@ -40,7 +40,7 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor in both meta copies. Planting a test epoch pair preserves the current policy word.
+Policy travels with the floor in both meta copies. Planting a test epoch pair preserves the current policy word. Do not clear or zero the policy word when planting the epoch pair.
 
 ### Dual-copy recovery invariant
 
@@ -48,8 +48,8 @@ Among copies that validate magic and CRC, the recovered floor and policy are tho
 
 ### Promote invariant
 
-Promoting a slot writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped `generation` equals the modular complete-record journal tip at promote time, the same tip reported as output `generation`.
+Promoting a slot writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped `generation` equals the modular complete-record journal tip at promote time, the same tip reported as output `generation`. Do not replace that tip with a flash-order last complete sequence or a linear numeric maximum.
 
 ### Boot selection invariant
 
-Eligible slots are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `security_version >= floor`; with that bit set, `security_version > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` slots. Otherwise ranking considers every eligible slot. Order by higher `security_version`, then newer stamped `generation` under the journal half-ring rule, then lower `slot_id`.
+Eligible slots are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `security_version >= floor`; with that bit set, `security_version > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` slots. Otherwise ranking considers every eligible slot. Order by higher `security_version`, then newer stamped `generation` under the journal half-ring rule, then lower `slot_id`. Do not rank by `image_version`. That field is informational only.

@@ -7,13 +7,8 @@
       "policy": 2
     },
     {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 80
-    },
-    {
       "op": "force_seq",
-      "seq": 10
+      "seq": 100
     },
     {
       "op": "put",
@@ -22,7 +17,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 65500
+      "seq": 40000
     },
     {
       "op": "put",
@@ -37,7 +32,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 5
+      "seq": 50
     },
     {
       "op": "put",
@@ -48,7 +43,7 @@
       "op": "promote",
       "slot": "B",
       "security_version": 2,
-      "image_version": 50,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

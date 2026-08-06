@@ -1,0 +1,41 @@
+{
+  "job_id": "h_reclaim_promote_meta",
+  "anti_rollback_min": 2,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 120,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 3,
+      "image_version": 1
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 65535
+    },
+    {
+      "op": "raise_floor",
+      "floor": 3,
+      "tear": "after_mirror"
+    }
+  ]
+}

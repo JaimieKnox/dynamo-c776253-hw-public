@@ -9,7 +9,7 @@
 | slot_id | u8 | `0` for A, `1` for B |
 | security_version | u16 | |
 | generation | u16 | copied from journal generation at promote time |
-| image_version | u32 | |
+| image_version | u32 | informational build stamp stored on the slot page |
 | crc16 | u16 | CRC16-CCITT over the twelve bytes before `crc16` |
 
 ## States (closed set)
@@ -35,17 +35,17 @@ Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share t
 
 ### Policy bits
 
-- bit 0 (`0x0001`) `REQUIRE_NEWER_SECURITY`: an eligible slot must have `security_version` strictly greater than the recovered floor (equality is not enough).
-- bit 1 (`0x0002`) `IGNORE_ACTIVE_PREF`: do not prefer ACTIVE; rank all eligible ACTIVE and CANDIDATE slots together by security, then generation, then slot id.
+- bit 0 (`0x0001`) `REQUIRE_NEWER_SECURITY`: an eligible slot must have `security_version` strictly greater than the recovered floor.
+- bit 1 (`0x0002`) `IGNORE_ACTIVE_PREF`: rank every eligible `ACTIVE` and `CANDIDATE` slot together by security, then generation, then slot id.
 
-When a bit is clear, the default boot rules apply for that concern. Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor.
+When a bit is clear, the default rule for that concern applies: floor eligibility uses `security_version >= floor`, and ranking may restrict to eligible `ACTIVE` slots when any exist before comparing the rest of the pool. Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor.
 
 ### Meta write order
 
 1. Choose the next epoch as one more than the maximum epoch among copies that validate magic and CRC, wrapping in 16 bits and skipping zero so epoch never lands on `0`. Epoch maximum uses the journal half-ring newer rule.
 2. Erase and program the mirror page with the new floor, epoch, and current policy word.
-3. If tear `after_mirror` is requested, stop here. Do not program the primary page after an `after_mirror` tear.
-4. Erase and program the primary page with the same floor, epoch, and policy word.
+3. If tear `after_mirror` is requested, stop here with only the mirror page updated.
+4. Otherwise erase and program the primary page with the same floor, epoch, and policy word.
 
 ### Meta read
 
@@ -59,7 +59,7 @@ The `set_policy` operation writes a new policy word through the same dual-copy p
 
 ## Promote phases
 
-The generation field stamped into the slot page is the modular complete-record tip from the journal at promote time (the same tip used for output `generation`), not the flash-order last complete sequence and not `image_version`.
+The generation field stamped into the slot page is the modular complete-record tip from the journal at promote time (the same tip used for output `generation`).
 
 1. Write the target slot as `CANDIDATE` with the requested versions and current journal generation.
 2. If the other slot is `ACTIVE`, rewrite it as `INVALID`.
@@ -69,6 +69,7 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 ## Boot selection
 
-Boot selection must respect the anti-rollback floor (a slot is eligible only when its `security_version` is greater than or equal to the recovered floor), prefer a confirmed-active slot when one is eligible, and otherwise choose among eligible candidates by higher security version. Equal security ties break by the newer stamped generation under the journal wrap rule, then by lower slot id.
-
-`image_version` is metadata only and must not affect boot ranking. Equal security ties break by newer stamped generation under the journal wrap rule, then by lower `slot_id` only.
+1. Build the eligible pool from valid `ACTIVE` and `CANDIDATE` slots that satisfy the floor rule under the recovered policy.
+2. When `IGNORE_ACTIVE_PREF` is clear and at least one eligible `ACTIVE` slot exists, restrict the ranking pool to those `ACTIVE` slots.
+3. Rank that pool by higher `security_version`, then by newer stamped `generation` under the journal half-ring rule, then by lower `slot_id`.
+4. The ranking keys are security version, stamped generation, and slot id only.

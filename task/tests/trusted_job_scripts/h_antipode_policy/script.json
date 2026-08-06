@@ -1,22 +1,10 @@
 {
-  "job_id": "h_gen_antipode",
+  "job_id": "h_antipode_policy",
   "anti_rollback_min": 1,
   "ops": [
     {
-      "op": "force_seq",
-      "seq": 1
-    },
-    {
-      "op": "put",
-      "key": "a",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "slot": "A",
-      "security_version": 2,
-      "image_version": 1,
-      "tear": "after_candidate"
+      "op": "set_policy",
+      "policy": 2
     },
     {
       "op": "force_seq",
@@ -31,7 +19,22 @@
       "op": "promote",
       "slot": "B",
       "security_version": 2,
-      "image_version": 99,
+      "image_version": 99
+    },
+    {
+      "op": "force_seq",
+      "seq": 1
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 2,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

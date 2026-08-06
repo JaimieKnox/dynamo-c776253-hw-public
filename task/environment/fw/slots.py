@@ -192,12 +192,12 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-            if info.generation > best.generation:
+        if info.generation > best.generation:
             best_name, best = name, info
             continue
         if info.generation < best.generation:
             continue
-            if info.image_version > best.image_version:
+        if info.image_version > best.image_version:
             best_name, best = name, info
             continue
         if info.image_version < best.image_version:

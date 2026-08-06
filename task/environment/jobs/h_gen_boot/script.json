@@ -1,5 +1,5 @@
 {
-  "job_id": "h_policy_plant",
+  "job_id": "h_gen_boot",
   "anti_rollback_min": 1,
   "ops": [
     {
@@ -7,32 +7,27 @@
       "policy": 2
     },
     {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 40
-    },
-    {
       "op": "force_seq",
-      "seq": 10
+      "seq": 40000
     },
     {
       "op": "put",
-      "key": "a",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 2,
+      "security_version": 3,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 20
+      "seq": 100
     },
     {
       "op": "put",
-      "key": "b",
+      "key": "q",
       "value": "1"
     },
     {

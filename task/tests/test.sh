@@ -4,7 +4,7 @@
 # Phase A seals expectations from the independent reference model and removes it.
 # Phase B grades agent outputs with no oracle import.
 set -u
-mkdir -p /logs/verifier
+mkdir -p /logs/verifie
 # Prevent agent-writable /app (ENV PYTHONPATH=/app) from shadowing stdlib/pytest.
 unset PYTHONPATH
 python3 -B /tests/derive_expectations.py

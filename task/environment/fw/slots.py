@@ -7,7 +7,6 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, SLOT_A_PAGE, SLOT_B_PAGE, Flash
-from .journal import Journal
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -116,8 +115,7 @@ def _unpack_meta(raw: bytes):
 
 
 def _gen_newer(a: int, b: int) -> bool:
-    delta = (b - a) & 0xFFFF
-    return 1 <= delta <= 32767
+    return b > a
 
 
 def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: int) -> None:
@@ -205,24 +203,9 @@ def select_boot_slot(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if _gen_newer(info.generation, best.generation):
             continue
-        # Prefer the higher build stamp when generations are unordered.
-        if info.image_version > best.image_version:
-            best_name, best = name, info
-            continue
-        if info.image_version < best.image_version:
-            continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
     return best_name, best.security_version, floor
-
-
-def _sealed_scan_tip(flash: Flash) -> int:
-    """Return the sealed sequence found last while scanning journal pages."""
-    tip = 0
-    for rec in Journal(flash).iter_records():
-        if rec.complete:
-            tip = rec.seq
-    return tip
 
 
 def promote(
@@ -235,7 +218,6 @@ def promote(
 ) -> None:
     other = "B" if which == "A" else "A"
     sid = SLOT_ID[which]
-    generation = _sealed_scan_tip(flash)
     cand = SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True)
     write_slot(flash, which, cand)
     if tear == "after_candidate":

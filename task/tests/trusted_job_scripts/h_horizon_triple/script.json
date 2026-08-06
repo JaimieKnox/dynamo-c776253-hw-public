@@ -9,11 +9,29 @@
     {
       "op": "force_meta_epoch",
       "floor": 2,
-      "epoch": 200
+      "epoch": 65534
+    },
+    {
+      "op": "raise_floor",
+      "floor": 3
+    },
+    {
+      "op": "raise_floor",
+      "floor": 4,
+      "tear": "after_mirror"
     },
     {
       "op": "force_seq",
-      "seq": 65500
+      "seq": 40000
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65530
     },
     {
       "op": "put",
@@ -26,30 +44,32 @@
       "val_len": 40
     },
     {
-      "op": "put",
-      "key": "keep",
-      "value": "v2"
+      "op": "force_seq",
+      "seq": 100
     },
     {
       "op": "put",
-      "key": "w1",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 3,
-      "image_version": 90
+      "security_version": 5,
+      "image_version": 1
+    },
+    {
+      "op": "reboot"
     },
     {
       "op": "put",
-      "key": "w2",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 3,
+      "security_version": 5,
       "image_version": 1,
       "tear": "after_candidate"
     }

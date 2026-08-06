@@ -1,53 +1,53 @@
 {
-  "job_id": "h_meta_policy",
-  "anti_rollback_min": 2,
+  "job_id": "h_gen_meta",
+  "anti_rollback_min": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
+      "policy": 2
     },
     {
       "op": "force_meta_epoch",
+      "floor": 1,
+      "epoch": 65530
+    },
+    {
+      "op": "raise_floor",
+      "floor": 1
+    },
+    {
+      "op": "raise_floor",
       "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
-      "op": "raise_floor",
-      "floor": 4,
       "tear": "after_mirror"
     },
     {
       "op": "force_seq",
-      "seq": 8
+      "seq": 50000
     },
     {
       "op": "put",
-      "key": "k",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 4,
+      "security_version": 3,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 9
+      "seq": 200
     },
     {
       "op": "put",
-      "key": "m",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 5,
+      "security_version": 3,
       "image_version": 1,
       "tear": "after_candidate"
     }

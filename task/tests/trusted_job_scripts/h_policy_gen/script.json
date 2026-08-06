@@ -1,39 +1,44 @@
 {
-  "job_id": "h_antipode_img",
+  "job_id": "h_policy_gen",
   "anti_rollback_min": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 2
+      "policy": 3
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 40
     },
     {
       "op": "force_seq",
-      "seq": 32769
+      "seq": 40000
     },
     {
       "op": "put",
-      "key": "b",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "slot": "B",
-      "security_version": 2,
-      "image_version": 99
-    },
-    {
-      "op": "force_seq",
-      "seq": 1
-    },
-    {
-      "op": "put",
-      "key": "a",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 2,
+      "security_version": 3,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "q",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 3,
       "image_version": 1,
       "tear": "after_candidate"
     }

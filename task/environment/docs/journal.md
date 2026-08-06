@@ -39,11 +39,11 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. Tip, `next_seq`, and output `generation` come only from complete records under the wrap rule below.
+On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. The append counter `next_seq` advances from the modular complete-record tip under the wrap rule below: one more than that tip, wrapping in 16 bits and skipping zero. Output `generation` is that same modular tip, or `0` if none. Do not advance the append counter from the flash-order last complete sequence when that disagrees with the wrap-rule tip.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal write-cursor tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`. Keep the sequence already selected. Output `generation` is that complete-record tip, or `0` if none.
+Sequences are 16-bit and wrap. Every consumer of "newer" (KV fold, reclaim fold, boot generation ties, meta epoch selection, the journal tip used to derive `next_seq`, and output `generation`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`. Keep the sequence already selected. Output `generation` is that complete-record tip, or `0` if none.
 
 ## KV fold
 

@@ -15,9 +15,6 @@ def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
     for rec in journal.iter_records():
         if not rec.complete:
             continue
-        prev = state.get(rec.key)
-        if prev is not None and not newer_seq(prev[1], rec.seq):
-            continue
         if rec.flags & TOMBSTONE:
             state[rec.key] = (None, rec.seq)
         else:
@@ -35,9 +32,9 @@ def _live_order(a, b) -> int:
     sb = b[1][1]
     if sa == sb:
         return 0
-    if sa < sb:
+    if newer_seq(sa, sb):
         return -1
-    if sa > sb:
+    if newer_seq(sb, sa):
         return 1
     return 0
 
@@ -54,4 +51,3 @@ def reclaim(flash: Flash, journal: Journal) -> None:
     items = sorted(live.items(), key=cmp_to_key(_live_order))
     for key, (value, _seq) in items:
         journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
-    journal.next_seq = next_seq

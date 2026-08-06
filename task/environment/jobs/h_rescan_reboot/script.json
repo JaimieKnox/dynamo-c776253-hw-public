@@ -1,5 +1,5 @@
 {
-  "job_id": "h_plant_stamp",
+  "job_id": "h_rescan_reboot",
   "anti_rollback_min": 1,
   "ops": [
     {
@@ -8,43 +8,35 @@
     },
     {
       "op": "force_seq",
-      "seq": 100
+      "seq": 10
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "a",
       "value": "1"
     },
     {
       "op": "force_seq",
-      "seq": 40000
+      "seq": 65500
     },
     {
       "op": "put",
-      "key": "q",
+      "key": "b",
+      "value": "1"
+    },
+    {
+      "op": "reboot"
+    },
+    {
+      "op": "put",
+      "key": "c",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 2,
+      "security_version": 3,
       "image_version": 1
-    },
-    {
-      "op": "force_seq",
-      "seq": 50
-    },
-    {
-      "op": "put",
-      "key": "r",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "slot": "B",
-      "security_version": 2,
-      "image_version": 1,
-      "tear": "after_candidate"
     }
   ]
 }

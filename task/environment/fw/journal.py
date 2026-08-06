@@ -1,4 +1,4 @@
-"""NOR flash journal with two-phase sealed records (corrected)."""
+"""NOR flash journal with two-phase sealed records."""
 
 from __future__ import annotations
 
@@ -83,8 +83,7 @@ class Journal:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    if max_seq is None or newer_seq(max_seq, seq):
-                        max_seq = seq
+                    max_seq = seq
                 off += total
                 end_page, end_off = page, off
                 saw = True

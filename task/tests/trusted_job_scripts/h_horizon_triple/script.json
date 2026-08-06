@@ -22,7 +22,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 40000
+      "seq": 100
     },
     {
       "op": "put",
@@ -42,10 +42,6 @@
       "op": "pad_puts",
       "count": 113,
       "val_len": 40
-    },
-    {
-      "op": "force_seq",
-      "seq": 100
     },
     {
       "op": "put",

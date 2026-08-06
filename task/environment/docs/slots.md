@@ -48,7 +48,7 @@ Among copies that validate magic and CRC, the recovered floor and policy are tho
 
 ### Promote invariant
 
-Promoting a slot writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped `generation` equals the modular complete-record journal tip at promote time, the same tip reported as output `generation`.
+Promoting a slot writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped `generation` is the modular complete-record journal tip supplied for that promote, matching output `generation` at that moment. Do not replace that tip with a raw integer maximum over flash sequences when the wrap rule disagrees.
 
 ### Boot selection invariant
 

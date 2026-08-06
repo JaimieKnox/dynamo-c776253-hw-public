@@ -1,5 +1,5 @@
 {
-  "job_id": "h_gen_meta",
+  "job_id": "h_stamp_own",
   "anti_rollback_min": 1,
   "ops": [
     {
@@ -7,47 +7,33 @@
       "policy": 2
     },
     {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 1
-    },
-    {
-      "op": "raise_floor",
-      "floor": 2,
-      "tear": "after_mirror"
-    },
-    {
       "op": "force_seq",
       "seq": 50000
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "x",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 3,
+      "security_version": 4,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 200
+      "seq": 50
     },
     {
       "op": "put",
-      "key": "q",
+      "key": "y",
       "value": "1"
     },
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 3,
+      "security_version": 4,
       "image_version": 1,
       "tear": "after_candidate"
     }

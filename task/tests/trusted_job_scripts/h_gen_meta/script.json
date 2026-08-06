@@ -9,7 +9,7 @@
     {
       "op": "force_meta_epoch",
       "floor": 1,
-      "epoch": 65530
+      "epoch": 65534
     },
     {
       "op": "raise_floor",

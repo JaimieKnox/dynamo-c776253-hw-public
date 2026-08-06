@@ -12,7 +12,6 @@ from .kv import recover_kv
 from .reclaim import reclaim
 from .slots import (
     _pack_meta,
-    _read_meta_full,
     promote,
     read_meta,
     select_boot_slot,
@@ -27,8 +26,8 @@ class Device:
         self.journal = Journal(self.flash)
 
     def _reclaim(self) -> None:
-        reclaim(self.flash, self.journal)
         keep_next = self.journal.next_seq
+        reclaim(self.flash, self.journal)
         self.journal._rescan()
         self.journal.next_seq = keep_next
 
@@ -77,8 +76,7 @@ class Device:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        _floor, policy = _read_meta_full(self.flash)
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)

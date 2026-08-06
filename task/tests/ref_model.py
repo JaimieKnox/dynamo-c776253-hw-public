@@ -558,9 +558,7 @@ class Device:
 
     def _reclaim(self) -> None:
         reclaim(self.flash, self.journal)
-        keep_next = self.journal.next_seq
         self.journal._rescan()
-        self.journal.next_seq = keep_next
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.journal.append(

@@ -37,6 +37,18 @@
       "slot": "A",
       "security_version": 3,
       "image_version": 1
+    },
+    {
+      "op": "put",
+      "key": "d",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 3,
+      "image_version": 1,
+      "tear": "after_candidate"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "job_id": "h_horizon_triple",
+  "job_id": "h_meta_plant",
   "anti_rollback_min": 1,
   "ops": [
     {
@@ -17,31 +17,12 @@
     },
     {
       "op": "raise_floor",
-      "floor": 4,
+      "floor": 5,
       "tear": "after_mirror"
     },
     {
       "op": "force_seq",
-      "seq": 100
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v2"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65530
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "pad_puts",
-      "count": 113,
-      "val_len": 40
+      "seq": 40000
     },
     {
       "op": "put",
@@ -51,11 +32,12 @@
     {
       "op": "promote",
       "slot": "A",
-      "security_version": 5,
+      "security_version": 6,
       "image_version": 1
     },
     {
-      "op": "reboot"
+      "op": "force_seq",
+      "seq": 100
     },
     {
       "op": "put",
@@ -65,7 +47,7 @@
     {
       "op": "promote",
       "slot": "B",
-      "security_version": 5,
+      "security_version": 6,
       "image_version": 1,
       "tear": "after_candidate"
     }

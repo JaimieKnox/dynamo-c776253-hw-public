@@ -1,0 +1,40 @@
+{
+  "job_id": "h_reclaim_antipode",
+  "anti_rollback_min": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 50
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "first"
+    },
+    {
+      "op": "force_seq",
+      "seq": 32818
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "second"
+    },
+    {
+      "op": "pad_puts",
+      "count": 120,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "z",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "A",
+      "security_version": 2,
+      "image_version": 1
+    }
+  ]
+}

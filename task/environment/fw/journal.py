@@ -59,6 +59,7 @@ class Journal:
 
     def _rescan(self) -> None:
         max_seq = None
+        last_hdr_seq = None
         end_page, end_off = 0, 0
         saw = False
         for page in range(JOURNAL_PAGES):
@@ -82,6 +83,7 @@ class Journal:
                 total = HDR_SIZE + key_len + val_len + 2
                 if off + total > PAGE_SIZE:
                     break
+                last_hdr_seq = seq
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if max_seq is None or newer_seq(max_seq, seq):
                         max_seq = seq
@@ -94,10 +96,12 @@ class Journal:
         else:
             self.write_page = end_page
             self.write_off = end_off
-        if max_seq is None:
+        # Shipped tip follows the flash-order last well-formed header sequence.
+        tip = last_hdr_seq if last_hdr_seq is not None else max_seq
+        if tip is None:
             self.next_seq = 1
         else:
-            self.next_seq = (max_seq + 1) & 0xFFFF
+            self.next_seq = (tip + 1) & 0xFFFF
             if self.next_seq == 0:
                 self.next_seq = 1
 

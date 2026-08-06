@@ -6,7 +6,7 @@ from functools import cmp_to_key
 from typing import Dict, Optional, Tuple
 
 from .flash_hal import JOURNAL_PAGES, Flash
-from .journal import TOMBSTONE, Journal, newer_seq
+from .journal import TOMBSTONE, Journal
 
 
 def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
@@ -16,7 +16,8 @@ def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
         if not rec.complete:
             continue
         prev = state.get(rec.key)
-        if prev is not None and not newer_seq(prev[1], rec.seq):
+        # Shipped fold keeps the numerically larger sequence.
+        if prev is not None and rec.seq <= prev[1]:
             continue
         if rec.flags & TOMBSTONE:
             state[rec.key] = (None, rec.seq)
@@ -35,9 +36,10 @@ def _live_order(a, b) -> int:
     sb = b[1][1]
     if sa == sb:
         return 0
-    if newer_seq(sa, sb):
+    # Shipped rewrite order is linear by sequence.
+    if sa < sb:
         return -1
-    if newer_seq(sb, sa):
+    if sa > sb:
         return 1
     return 0
 

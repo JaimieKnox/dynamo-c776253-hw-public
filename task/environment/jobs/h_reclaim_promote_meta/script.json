@@ -3,6 +3,10 @@
   "anti_rollback_min": 2,
   "ops": [
     {
+      "op": "set_policy",
+      "policy": 2
+    },
+    {
       "op": "force_seq",
       "seq": 65530
     },
@@ -22,10 +26,44 @@
       "value": "v2"
     },
     {
+      "op": "force_seq",
+      "seq": 10
+    },
+    {
+      "op": "put",
+      "key": "w1",
+      "value": "1"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65500
+    },
+    {
+      "op": "put",
+      "key": "w2",
+      "value": "1"
+    },
+    {
       "op": "promote",
       "slot": "A",
-      "security_version": 3,
+      "security_version": 4,
       "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 20
+    },
+    {
+      "op": "put",
+      "key": "w3",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "slot": "B",
+      "security_version": 4,
+      "image_version": 50,
+      "tear": "after_candidate"
     },
     {
       "op": "force_meta_epoch",

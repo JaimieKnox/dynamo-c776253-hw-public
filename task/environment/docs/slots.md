@@ -35,10 +35,12 @@ Primary meta lives on page 30. Mirror meta lives on page 31. Both copies share t
 
 ### Policy bits
 
-- bit 0 (`0x0001`) `REQUIRE_NEWER_SECURITY`: an eligible slot must have `security_version` strictly greater than the recovered floor.
-- bit 1 (`0x0002`) `IGNORE_ACTIVE_PREF`: rank every eligible `ACTIVE` and `CANDIDATE` slot together by security, then generation, then slot id.
+| Bit | Value | Name |
+|-----|-------|------|
+| 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
+| 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-When a bit is clear, the default rule for that concern applies: floor eligibility uses `security_version >= floor`, and ranking may restrict to eligible `ACTIVE` slots when any exist before comparing the rest of the pool. Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor.
+Policy is carried in both meta copies and selected with the same epoch-newer copy as the floor. Boot selection applies each set bit as a constraint on the eligibility and ranking steps below. When a bit is clear, the default rule for that step applies.
 
 ### Meta write order
 
@@ -69,7 +71,6 @@ Tear `after_candidate` stops after phase 1. Tear `after_invalidate` stops after 
 
 ## Boot selection
 
-1. Build the eligible pool from valid `ACTIVE` and `CANDIDATE` slots that satisfy the floor rule under the recovered policy.
-2. When `IGNORE_ACTIVE_PREF` is clear and at least one eligible `ACTIVE` slot exists, restrict the ranking pool to those `ACTIVE` slots.
+1. Build the eligible pool from valid `ACTIVE` and `CANDIDATE` slots under the recovered floor and policy. With `REQUIRE_NEWER_SECURITY` clear, a slot is eligible when `security_version >= floor`. With that bit set, eligibility requires `security_version > floor`.
+2. When `IGNORE_ACTIVE_PREF` is clear and at least one eligible `ACTIVE` slot exists, restrict the ranking pool to those `ACTIVE` slots. With that bit set, rank every eligible `ACTIVE` and `CANDIDATE` together.
 3. Rank that pool by higher `security_version`, then by newer stamped `generation` under the journal half-ring rule, then by lower `slot_id`.
-4. The ranking keys are security version, stamped generation, and slot id only.

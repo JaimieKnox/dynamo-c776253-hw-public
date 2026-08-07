@@ -1,0 +1,50 @@
+# Ring log records
+
+## Header
+
+Little-endian fields:
+
+| Field | Size | Notes |
+|-------|------|-------|
+| magic | u16 | `0xA55A` |
+| flags | u8 | see flags |
+| key_len | u8 | |
+| val_len | u16 | |
+| seq | u16 | sequence |
+| hdr_crc | u16 | CRC16-CCITT over the eight bytes before `hdr_crc` |
+
+Payload is `key || value` followed by `pay_crc` (CRC16-CCITT over the payload bytes).
+
+## Flags
+
+- `TOMBSTONE = 0x01`
+- `SEAL_HDR = 0x02`
+- `SEAL_PAY = 0x04`
+
+## CRC
+
+CRC16-CCITT polynomial `0x1021`, initial value `0xFFFF`, no final XOR.
+
+## Two-phase commit
+
+1. Program the header with `SEAL_HDR` set (and `TOMBSTONE` when deleting).
+2. Program payload bytes and `pay_crc`.
+3. Reprogram the header with `SEAL_PAY` also set.
+
+A power tear may stop after the header (`after_header`) or after the payload bytes (`after_payload`) before the second seal is applied.
+
+## Completeness
+
+A record is durable only once the two-phase commit has fully finished for that record. Both seal phases must be present, with a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, tip selection, and compaction folds.
+
+## Write cursor
+
+On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. The append counter `next_seq` advances from the modular complete-record tip under the wrap rule below: one more than that tip, wrapping in 16 bits and skipping zero. Output `tip_seq` is that same modular tip, or `0` if none. Do not advance the append counter from the flash-order last complete sequence when that disagrees with the wrap-rule tip.
+
+## Sequence ordering
+
+Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive `next_seq`, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`. Keep the sequence already selected. Output `tip_seq` is that complete-record tip, or `0` if none.
+
+## NVS fold
+
+Scan complete records in flash order. For each key keep the newest sequence under the wrap rule above. If that record is a tombstone, omit the key. Otherwise keep its value. Deletes must take effect even when compaction never runs.

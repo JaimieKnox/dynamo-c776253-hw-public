@@ -1,4 +1,4 @@
-"""Independent correct recovery model. Does not import /app/fw."""
+"""Independent correct recovery model. Does not import /app/norctl."""
 
 from __future__ import annotations
 
@@ -10,9 +10,9 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 PAGE_SIZE = 256
 NUM_PAGES = 32
-JOURNAL_PAGES = 28
-SLOT_A_PAGE = 28
-SLOT_B_PAGE = 29
+RING_PAGES = 28
+BANK_X_PAGE = 28
+BANK_Y_PAGE = 29
 META_PAGE = 30
 META_MIRROR_PAGE = 31
 
@@ -28,7 +28,7 @@ EMPTY = 0
 CANDIDATE = 1
 ACTIVE = 2
 INVALID = 3
-SLOT_ID = {"A": 0, "B": 1}
+BANK_ID = {"X": 0, "Y": 1}
 
 
 def crc16_ccitt(data: bytes, init: int = 0xFFFF) -> int:
@@ -90,7 +90,7 @@ def _hdr_bytes(flags: int, key_len: int, val_len: int, seq: int) -> bytes:
     return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
 
 
-class Journal:
+class RingLog:
     def __init__(self, flash: Flash):
         self.flash = flash
         self.next_seq = 1
@@ -115,7 +115,7 @@ class Journal:
         max_seq = None
         end_page, end_off = 0, 0
         saw = False
-        for page in range(JOURNAL_PAGES):
+        for page in range(RING_PAGES):
             off = 0
             while off + HDR_SIZE <= PAGE_SIZE:
                 raw = self.flash.read(page * PAGE_SIZE + off, HDR_SIZE)
@@ -156,7 +156,7 @@ class Journal:
                 self.next_seq = 1
 
     def iter_records(self) -> Iterator[Record]:
-        for page in range(JOURNAL_PAGES):
+        for page in range(RING_PAGES):
             off = 0
             while off + HDR_SIZE <= PAGE_SIZE:
                 raw = self.flash.read(page * PAGE_SIZE + off, HDR_SIZE)
@@ -191,18 +191,18 @@ class Journal:
 
     def ensure_space(self, need: int, reclaim_cb: Callable[[], None]) -> None:
         while True:
-            if self.write_page >= JOURNAL_PAGES:
+            if self.write_page >= RING_PAGES:
                 reclaim_cb()
                 keep_next = self.next_seq
                 self._rescan()
                 self.next_seq = keep_next
-                if self.write_page >= JOURNAL_PAGES:
-                    raise RuntimeError("journal full after reclaim")
+                if self.write_page >= RING_PAGES:
+                    raise RuntimeError("ring log full after compact")
                 continue
             if self.write_off + need <= PAGE_SIZE:
                 return
             nxt = self.write_page + 1
-            if nxt >= JOURNAL_PAGES:
+            if nxt >= RING_PAGES:
                 reclaim_cb()
                 keep_next = self.next_seq
                 self._rescan()
@@ -251,7 +251,7 @@ class Journal:
         self.write_off += need
         return seq
 
-    def max_generation(self) -> int:
+    def tip_seq(self) -> int:
         gen = None
         for rec in self.iter_records():
             if not rec.complete:
@@ -261,9 +261,9 @@ class Journal:
         return 0 if gen is None else gen
 
 
-def fold_live(journal: Journal) -> Dict[bytes, Tuple[bytes, int]]:
+def fold_live(ring: RingLog) -> Dict[bytes, Tuple[bytes, int]]:
     state: Dict[bytes, Tuple[Optional[bytes], int]] = {}
-    for rec in journal.iter_records():
+    for rec in ring.iter_records():
         if not rec.complete:
             continue
         prev = state.get(rec.key)
@@ -293,22 +293,22 @@ def _live_order(a, b) -> int:
     return 0
 
 
-def reclaim(flash: Flash, journal: Journal) -> None:
-    live = fold_live(journal)
-    next_seq = journal.next_seq
-    for page in range(JOURNAL_PAGES):
+def compact(flash: Flash, ring: RingLog) -> None:
+    live = fold_live(ring)
+    next_seq = ring.next_seq
+    for page in range(RING_PAGES):
         flash.erase_page(page)
-    journal.write_page = 0
-    journal.write_off = 0
-    journal.next_seq = next_seq
+    ring.write_page = 0
+    ring.write_off = 0
+    ring.next_seq = next_seq
     items = sorted(live.items(), key=cmp_to_key(_live_order))
     for key, (value, _seq) in items:
-        journal.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
+        ring.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
 
 
-def recover_kv(journal: Journal) -> Dict[str, str]:
+def recover_nvs(ring: RingLog) -> Dict[str, str]:
     state: Dict[bytes, tuple] = {}
-    for rec in journal.iter_records():
+    for rec in ring.iter_records():
         if not rec.complete:
             continue
         prev = state.get(rec.key)
@@ -327,7 +327,7 @@ def recover_kv(journal: Journal) -> Dict[str, str]:
 
 
 @dataclass
-class SlotInfo:
+class BankInfo:
     state: int
     slot_id: int
     security_version: int
@@ -363,8 +363,8 @@ def _pack_slot(
     return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
 
 
-def write_slot(flash: Flash, which: str, info: SlotInfo) -> None:
-    page = SLOT_A_PAGE if which == "A" else SLOT_B_PAGE
+def write_bank(flash: Flash, which: str, info: SlotInfo) -> None:
+    page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     flash.erase_page(page)
     flash.program(
         page * PAGE_SIZE,
@@ -378,12 +378,12 @@ def write_slot(flash: Flash, which: str, info: SlotInfo) -> None:
     )
 
 
-def read_slot(flash: Flash, which: str) -> SlotInfo:
-    page = SLOT_A_PAGE if which == "A" else SLOT_B_PAGE
+def read_bank(flash: Flash, which: str) -> SlotInfo:
+    page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     raw = flash.read(page * PAGE_SIZE, 14)
     magic = raw[0] | (raw[1] << 8)
     if magic != MAGIC_SLOT:
-        return SlotInfo(EMPTY, SLOT_ID[which], 0, 0, 0, False)
+        return BankInfo(EMPTY, BANK_ID[which], 0, 0, 0, False)
     state = raw[2]
     slot_id = raw[3]
     sec = raw[4] | (raw[5] << 8)
@@ -391,7 +391,7 @@ def read_slot(flash: Flash, which: str) -> SlotInfo:
     img = raw[8] | (raw[9] << 8) | (raw[10] << 16) | (raw[11] << 24)
     crc = raw[12] | (raw[13] << 8)
     ok = crc16_ccitt(raw[:12]) == crc
-    return SlotInfo(state, slot_id, sec, gen, img, ok)
+    return BankInfo(state, slot_id, sec, gen, img, ok)
 
 
 def _pack_meta(floor: int, epoch: int, policy: int = 0) -> bytes:
@@ -477,11 +477,11 @@ def read_meta(flash: Flash) -> int:
     return floor
 
 
-def select_boot_slot(flash: Flash):
+def select_boot_bank(flash: Flash):
     floor, policy = _read_meta_full(flash)
     pool = []
-    for name in ("A", "B"):
-        info = read_slot(flash, name)
+    for name in ("X", "Y"):
+        info = read_bank(flash, name)
         if not info.valid:
             continue
         if info.state not in (ACTIVE, CANDIDATE):
@@ -525,57 +525,57 @@ def promote(
     generation: int,
     tear: Optional[str] = None,
 ) -> None:
-    other = "B" if which == "A" else "A"
-    sid = SLOT_ID[which]
-    write_slot(
+    other = "Y" if which == "X" else "X"
+    sid = BANK_ID[which]
+    write_bank(
         flash,
         which,
-        SlotInfo(CANDIDATE, sid, security_version, generation, image_version, True),
+        BankInfo(CANDIDATE, sid, security_version, generation, image_version, True),
     )
     if tear == "after_candidate":
         return
-    o = read_slot(flash, other)
+    o = read_bank(flash, other)
     if o.valid and o.state == ACTIVE:
-        write_slot(
+        write_bank(
             flash,
             other,
-            SlotInfo(INVALID, o.slot_id, o.security_version, o.generation, o.image_version, True),
+            BankInfo(INVALID, o.slot_id, o.security_version, o.generation, o.image_version, True),
         )
     if tear == "after_invalidate":
         return
-    write_slot(
+    write_bank(
         flash,
         which,
-        SlotInfo(ACTIVE, sid, security_version, generation, image_version, True),
+        BankInfo(ACTIVE, sid, security_version, generation, image_version, True),
     )
 
 
-class Device:
-    def __init__(self, anti_rollback_min: int = 1):
+class Runtime:
+    def __init__(self, sec_floor: int = 1):
         self.flash = Flash()
-        write_meta(self.flash, anti_rollback_min)
-        self.journal = Journal(self.flash)
+        write_meta(self.flash, sec_floor)
+        self.ring = RingLog(self.flash)
 
-    def _reclaim(self) -> None:
-        reclaim(self.flash, self.journal)
-        self.journal._rescan()
+    def _compact(self) -> None:
+        compact(self.flash, self.ring)
+        self.ring._rescan()
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
-        self.journal.append(
+        self.ring.append(
             key.encode("utf-8"),
             value.encode("utf-8"),
             tombstone=False,
             tear=tear,
-            reclaim_cb=self._reclaim,
+            reclaim_cb=self._compact,
         )
 
     def delete(self, key: str, tear: Optional[str] = None) -> None:
-        self.journal.append(
+        self.ring.append(
             key.encode("utf-8"),
             b"",
             tombstone=True,
             tear=tear,
-            reclaim_cb=self._reclaim,
+            reclaim_cb=self._compact,
         )
 
     def force_meta_epoch(self, floor: int, epoch: int) -> None:
@@ -600,21 +600,21 @@ class Device:
             elif kind == "delete":
                 self.delete(op["key"], tear=op.get("tear"))
             elif kind == "promote":
-                gen = self.journal.max_generation()
+                tip = self.ring.tip_seq()
                 promote(
                     self.flash,
-                    op["slot"],
-                    int(op["security_version"]),
+                    op["bank"],
+                    int(op["sec_rev"]),
                     int(op["image_version"]),
-                    generation=gen,
+                    generation=tip,
                     tear=op.get("tear"),
                 )
             elif kind == "force_meta_epoch":
                 self.force_meta_epoch(int(op["floor"]), int(op["epoch"]))
             elif kind == "force_seq":
-                self.journal.next_seq = int(op["seq"]) & 0xFFFF
-                if self.journal.next_seq == 0:
-                    self.journal.next_seq = 1
+                self.ring.next_seq = int(op["seq"]) & 0xFFFF
+                if self.ring.next_seq == 0:
+                    self.ring.next_seq = 1
             elif kind == "pad_puts":
                 count = int(op.get("count", 40))
                 val_len = int(op.get("val_len", 40))
@@ -625,33 +625,33 @@ class Device:
             elif kind == "raise_floor":
                 write_meta(self.flash, int(op["floor"]), tear=op.get("tear"))
             elif kind == "reboot":
-                self.journal = Journal(self.flash)
+                self.ring = RingLog(self.flash)
             else:
                 raise ValueError(kind)
 
-    def recover(self, job_id: str) -> Dict[str, Any]:
-        j = Journal(self.flash)
-        kv = recover_kv(j)
-        boot, sec, floor = select_boot_slot(self.flash)
+    def recover(self, case_id: str) -> Dict[str, Any]:
+        ring = RingLog(self.flash)
+        nvs = recover_nvs(ring)
+        boot, sec, floor = select_boot_bank(self.flash)
         return {
-            "job_id": job_id,
-            "kv": kv,
-            "boot_slot": boot,
-            "security_version": sec,
-            "generation": j.max_generation(),
-            "anti_rollback_min": floor,
+            "case_id": case_id,
+            "nvs": nvs,
+            "boot_bank": boot,
+            "sec_rev": sec,
+            "tip_seq": ring.tip_seq(),
+            "sec_floor": floor,
         }
 
 
-def run_job(script: Dict[str, Any]) -> Dict[str, Any]:
-    dev = Device(anti_rollback_min=int(script.get("anti_rollback_min", 1)))
-    dev.apply_ops(script.get("ops", []))
-    return dev.recover(script["job_id"])
+def run_case(script: Dict[str, Any]) -> Dict[str, Any]:
+    rt = Runtime(sec_floor=int(script.get("sec_floor", 1)))
+    rt.apply_ops(script.get("ops", []))
+    return rt.recover(script["case_id"])
 
 
-def expected_for_jobs(jobs_dir: Path) -> Dict[str, Dict[str, Any]]:
+def expected_for_cases(cases_dir: Path) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
-    for p in sorted(jobs_dir.glob("*/script.json")):
+    for p in sorted(cases_dir.glob("*/script.json")):
         script = json.loads(p.read_text(encoding="utf-8"))
-        out[script["job_id"]] = run_job(script)
+        out[script["case_id"]] = run_case(script)
     return out

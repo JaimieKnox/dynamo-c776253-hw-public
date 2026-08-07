@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
-cp -f /solution/fixed/journal.py /app/fw/journal.py
-cp -f /solution/fixed/reclaim.py /app/fw/reclaim.py
-cp -f /solution/fixed/slots.py /app/fw/slots.py
-cp -f /solution/fixed/kv.py /app/fw/kv.py
-cp -f /solution/fixed/device.py /app/fw/device.py
-python3 -m fw /app/jobs /app/output
+cp -f /solution/fixed/ringlog.py /app/norctl/ringlog.py
+cp -f /solution/fixed/compact.py /app/norctl/compact.py
+cp -f /solution/fixed/banks.py /app/norctl/banks.py
+cp -f /solution/fixed/nvs.py /app/norctl/nvs.py
+cp -f /solution/fixed/runtime.py /app/norctl/runtime.py
+python3 -m norctl /app/cases /app/out

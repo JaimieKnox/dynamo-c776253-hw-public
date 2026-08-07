@@ -1,35 +1,35 @@
 You are repairing embedded recovery code for a dual-bank OTA device.
 
-Code lives in `/app/fw`. Correct behavior is defined only by `/app/docs/README.md`, `/app/docs/journal.md`, `/app/docs/slots.md`, and `/app/docs/reclaim.md`. Do not invent rules that conflict with those documents.
+Code lives in `/app/norctl`. Correct behavior is defined only by `/app/spec/README.md`, `/app/spec/ringlog.md`, `/app/spec/banks.md`, and `/app/spec/compact.md`. Do not invent rules that conflict with those documents.
 
-Under the journal wrap rule in `/app/docs/journal.md`, a sequence is newer only on a forward 16-bit distance of `1` through `32767`. An exact antipode pair (forward distance `32768`) is not newer. Retain the already-selected sequence for KV fold, generation tip, meta epoch selection, and boot generation ties.
+Under the ring wrap rule in `/app/spec/ringlog.md`, a sequence is newer only on a forward 16-bit distance of `1` through `32767`. An exact antipode pair (forward distance `32768`) is not newer. Retain the already-selected sequence for NVS fold, tip selection, meta epoch selection, and boot tip ties.
 
-Job packs sit under `/app/jobs`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise end-to-end recovery invariants from `/app/docs`.
+Case packs sit under `/app/cases`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise end-to-end recovery invariants from `/app/spec`.
 
-Bring firmware recovery in line with the docs, then generate outputs for every pack under `/app/jobs` by running:
+Bring controller recovery in line with the spec, then generate outputs for every pack under `/app/cases` by running:
 
 ```
-python3 -m fw /app/jobs /app/output
+python3 -m norctl /app/cases /app/out
 ```
 
-Create `/app/output/<job_id>/recovered.json` for each pack. The JSON object must contain exactly:
+Create `/app/out/<case_id>/state.json` for each pack. The JSON object must contain exactly:
 
-- `job_id` as a string
-- `kv` as a string-to-string object
-- `boot_slot` as `"A"`, `"B"`, or `null`
-- `security_version` as an integer or `null`
-- `generation` as an integer
-- `anti_rollback_min` as an integer
+- `case_id` as a string
+- `nvs` as a string-to-string object
+- `boot_bank` as `"X"`, `"Y"`, or `null`
+- `sec_rev` as an integer or `null`
+- `tip_seq` as an integer
+- `sec_floor` as an integer
 
-Create `/app/output/batch_report.jsonl` as well. Each line is one job object with the same keys, written with compact separators and `sort_keys=True`, and lines must appear in ascending `job_id` order.
+Create `/app/out/suite_ledger.jsonl` as well. Each line is one case object with the same keys, written with compact separators and `sort_keys=True`, and lines must appear in ascending `case_id` order.
 
 Graded checks:
 
-1. The batch report file exists and covers every pack in ascending `job_id` order.
-2. Every pack has a recovered file with the exact required key set.
-3. `kv` matches `/app/docs` for each pack after journal fold and reclaim.
-4. `boot_slot` and `security_version` match `/app/docs/slots.md` for each pack.
-5. `generation` is the modular sequence tip of complete records, or `0` when there are none.
-6. `anti_rollback_min` matches each pack meta floor after dual-copy recovery.
+1. The suite ledger file exists and covers every pack in ascending `case_id` order.
+2. Every pack has a state file with the exact required key set.
+3. `nvs` matches `/app/spec` for each pack after ring fold and compaction.
+4. `boot_bank` and `sec_rev` match `/app/spec/banks.md` for each pack.
+5. `tip_seq` is the modular sequence tip of complete records, or `0` when there are none.
+6. `sec_floor` matches each pack meta floor after dual-copy recovery.
 7. `/app/smoke/run_smoke.py` still succeeds for `sample_*` after the repair.
-8. The repaired code under `/app/fw` must itself reproduce the graded recovery outputs when re-run against the job packs.
+8. The repaired code under `/app/norctl` must itself reproduce the graded recovery outputs when re-run against the case packs.

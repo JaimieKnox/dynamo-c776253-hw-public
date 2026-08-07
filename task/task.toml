@@ -1,8 +1,8 @@
-artifacts = ["/app/output/batch_report.jsonl", "/app/output"]
+artifacts = ["/app/out/suite_ledger.jsonl", "/app/out"]
 
 [task]
-name = "dynamo/flash-slot-recover"
-description = "Repair NOR flash journal and A/B OTA slot recovery so hard tear, wrap, reclaim, and promote jobs recover correctly."
+name = "dynamo/nor-bank-repair"
+description = "Repair NOR ring log and X/Y OTA bank recovery so hard tear, wrap, compact, and promote cases recover correctly."
 
 [metadata]
 category = "Hardware Embedded and Low Level Systems"
@@ -12,9 +12,9 @@ agent_tested = "Terminus-2"
 task_objective = ["debug", "fix", "recover_or_repair_artifact"]
 artifact_type = ["codebase", "hardware_or_firmware_artifact", "generated_output_artifact"]
 expert_time_estimate_hours = 12
-difficulty_explanation = "Shipped firmware already uses half-ring newer_seq for journal tip, max_generation, boot generation ties, and reclaim fold, so checklist wrap helper edits stop early. Residual defects sit one layer up: promote restamps from a linear flash-sequence maximum instead of the modular tip argument, meta write and dual-copy read still pick epochs with raw integer order while force_meta_epoch clears policy to zero, and reclaim rewrites in linear sequence order then freezes next_seq to the pre-erase tip with device._reclaim restoring that pre-reclaim counter after rescan. Hard packs isolate stamp ownership under equal security, meta epoch wrap with policy plant, reclaim tip continuity after compaction, and a long-horizon composition across those planes. The environment is a purpose-built synthetic simulator for embedded and OTA firmware engineers."
-solution_explanation = "Stamp promote generation from the modular journal tip argument. Select meta epochs with the half-ring newer rule on both write and dual-copy read, and preserve policy across force_meta_epoch. Keep reclaim rewrite order modular and leave next_seq at the post-rewrite tip through device reclaim and rescan. Re-run the batch runner to emit recovered JSON and batch_report.jsonl."
-verification_explanation = "A two-phase verifier derives sealed expectations from an independent reference model, removes that model from the tests tree, then grades outputs by strict JSON equality on kv, boot_slot, security_version, generation, and anti_rollback_min. Schema and job order are checked on batch_report.jsonl and per-job recovered.json. Sample smoke must still pass. The verifier also re-runs python3 -m fw against trusted packs so unrepaired firmware cannot pass by writing outputs alone."
+difficulty_explanation = "Shipped controller already uses half-ring newer_seq for ring tip, NVS fold, boot tip ties, and compact fold leaves, so checklist wrap helper edits stop early. Residual defects sit one layer up: promote restamps from a linear flash-sequence maximum instead of the modular tip argument, meta write and dual-copy read still pick epochs with raw integer order while force_meta_epoch clears policy to zero, and compact rewrites in linear sequence order then freezes next_seq to the pre-erase tip with runtime._compact restoring that pre-compact counter after rescan. Hard packs isolate stamp ownership under equal security, meta epoch wrap with policy plant, compact tip continuity after compaction, and a long-horizon composition across those planes. The environment is a purpose-built synthetic simulator for embedded and OTA firmware engineers."
+solution_explanation = "Stamp promote tip from the modular ring tip argument. Select meta epochs with the half-ring newer rule on both write and dual-copy read, and preserve policy across force_meta_epoch. Keep compact rewrite order modular and leave next_seq at the post-rewrite tip through runtime compact and rescan. Re-run the suite runner to emit state JSON and suite_ledger.jsonl."
+verification_explanation = "A two-phase verifier derives sealed expectations from an independent reference model, removes that model from the tests tree, then grades outputs by strict JSON equality on nvs, boot_bank, sec_rev, tip_seq, and sec_floor. Schema and case order are checked on suite_ledger.jsonl and per-case state.json. Sample smoke must still pass. The verifier also re-runs python3 -m norctl against trusted packs so unrepaired controller code cannot pass by writing outputs alone."
 
 [verifier]
 timeout_sec = 180.0

@@ -204,6 +204,11 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if _gen_newer(info.generation, best.generation):
             continue
+        if info.image_version > best.image_version:
+            best_name, best = name, info
+            continue
+        if info.image_version < best.image_version:
+            continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
     return best_name, best.security_version, floor
@@ -217,14 +222,6 @@ def promote(
     generation: int,
     tear: Optional[str] = None,
 ) -> None:
-    from .ringlog import RingLog
-
-    # Stamp from a linear complete-record scan of flash, not the caller tip.
-    best = 0
-    for rec in RingLog(flash).iter_records():
-        if rec.complete and rec.seq > best:
-            best = rec.seq
-    generation = best
     other = "Y" if which == "X" else "X"
     sid = BANK_ID[which]
     cand = BankInfo(CANDIDATE, sid, security_version, generation, image_version, True)

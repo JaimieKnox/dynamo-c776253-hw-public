@@ -2,7 +2,7 @@ You are repairing embedded recovery code for a dual-bank OTA device.
 
 Code lives in `/app/norctl`. Correct behavior is defined only by `/app/spec/README.md`, `/app/spec/ringlog.md`, `/app/spec/banks.md`, and `/app/spec/compact.md`. Do not invent rules that conflict with those documents.
 
-Under the ring wrap rule in `/app/spec/ringlog.md`, a sequence is newer only on a forward 16-bit distance of `1` through `32767`. An exact antipode pair (forward distance `32768`) is not newer. Retain the already-selected sequence for NVS fold, tip selection, meta epoch selection, and boot tip ties.
+Sequence freshness follows the ring wrap rule in `/app/spec/ringlog.md`. Apply that same rule wherever recovery compares sequences.
 
 Case packs sit under `/app/cases`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise end-to-end recovery invariants from `/app/spec`.
 

@@ -39,11 +39,11 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. The append counter `next_seq` advances from the modular complete-record tip under the wrap rule below: one more than that tip, wrapping in 16 bits and skipping zero. Output `tip_seq` is that same modular tip, or `0` if none.
+On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. The append counter `next_seq` advances from the complete-record tip under the wrap rule below: one more than that tip, wrapping in 16 bits and skipping zero. Output `tip_seq` is that same tip, or `0` if none.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive `next_seq`, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768` (the antipode / half-ring opposite), `b` is not newer than `a`. Keep the sequence already selected. Output `tip_seq` is that complete-record tip, or `0` if none.
+Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive `next_seq`, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.
 
 ## NVS fold
 

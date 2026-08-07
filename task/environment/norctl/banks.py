@@ -199,10 +199,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if _gen_newer(best.generation, info.generation):
+        if info.generation > best.generation:
             best_name, best = name, info
             continue
-        if _gen_newer(info.generation, best.generation):
+        if info.generation < best.generation:
             continue
         if info.image_version > best.image_version:
             best_name, best = name, info

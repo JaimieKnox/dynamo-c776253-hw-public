@@ -1,24 +1,10 @@
 {
-  "case_id": "h_horizon_triple",
+  "case_id": "h_compact_boot",
   "sec_floor": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
-      "op": "raise_floor",
-      "floor": 4,
-      "tear": "after_mirror"
+      "policy": 2
     },
     {
       "op": "force_seq",
@@ -51,11 +37,12 @@
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 1
     },
     {
-      "op": "reboot"
+      "op": "force_seq",
+      "seq": 50
     },
     {
       "op": "put",
@@ -65,7 +52,7 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 80,
       "tear": "after_candidate"
     }

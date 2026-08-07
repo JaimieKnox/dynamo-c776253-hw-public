@@ -38,7 +38,7 @@ def compact(flash: Flash, ring: RingLog) -> None:
     ring.write_page = 0
     ring.write_off = 0
     ring.next_seq = next_seq
-    items = sorted(live.items(), key=lambda kv: kv[0])
+    items = list(live.items())
     for key, (value, _seq) in items:
         ring.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
     ring.next_seq = next_seq

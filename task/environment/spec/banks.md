@@ -44,12 +44,12 @@ Policy travels with the floor in both meta copies. Planting a test epoch pair pr
 
 ### Dual-copy recovery invariant
 
-Among copies that validate magic and CRC, the recovered floor and policy are those of the copy whose epoch is newer under the ring half-ring rule. Updates program the mirror first, then the primary, with the next epoch equal to one more than the half-ring-maximum valid epoch, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
+Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
 
 ### Promote invariant
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip is the modular complete-record ring tip supplied for that promote, matching output `tip_seq` at that moment.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the device ring tip that recovery would report as `tip_seq` at that moment.
 
 ### Boot selection invariant
 
-Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`; with that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Order by higher `sec_rev`, then newer stamped tip under the ring half-ring rule, then lower `bank_id`. The `image_version` field is informational and is not a ranking key.
+Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`; with that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins).

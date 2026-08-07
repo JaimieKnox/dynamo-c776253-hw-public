@@ -104,8 +104,8 @@ class RingLog:
     def record_complete(
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
-        """Require SEAL_HDR, SEAL_PAY, and matching pay_crc."""
-        if not (flags & SEAL_HDR) or not (flags & SEAL_PAY):
+        """Require SEAL_HDR and matching pay_crc."""
+        if not (flags & SEAL_HDR):
             return False
         pay_len = key_len + val_len
         addr = page * PAGE_SIZE + offset + HDR_SIZE
@@ -216,10 +216,10 @@ class RingLog:
         return seq
 
     def tip_seq(self) -> int:
-        gen = None
+        gen = 0
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if gen is None or newer_seq(gen, rec.seq):
+            if rec.seq > gen:
                 gen = rec.seq
-        return 0 if gen is None else gen
+        return gen

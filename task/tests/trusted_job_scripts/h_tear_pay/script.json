@@ -1,0 +1,27 @@
+{
+  "case_id": "h_tear_pay",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 10
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "ok"
+    },
+    {
+      "op": "put",
+      "key": "torn",
+      "value": "bad",
+      "tear": "after_payload"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    }
+  ]
+}

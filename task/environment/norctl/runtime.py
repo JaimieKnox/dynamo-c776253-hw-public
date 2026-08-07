@@ -62,10 +62,7 @@ class Runtime:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        tip = 0
-        for rec in self.ring.iter_records():
-            if rec.complete and rec.seq > tip:
-                tip = rec.seq
+        tip = self.ring.tip_seq()
         promote(
             self.flash,
             bank,

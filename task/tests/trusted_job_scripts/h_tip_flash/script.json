@@ -1,0 +1,30 @@
+{
+  "case_id": "h_tip_flash",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 65500
+    },
+    {
+      "op": "put",
+      "key": "old",
+      "value": "1"
+    },
+    {
+      "op": "force_seq",
+      "seq": 40
+    },
+    {
+      "op": "put",
+      "key": "new",
+      "value": "2"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    }
+  ]
+}

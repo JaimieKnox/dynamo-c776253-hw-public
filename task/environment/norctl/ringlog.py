@@ -157,8 +157,8 @@ class RingLog:
     def ensure_space(self, need: int, reclaim_cb: Callable[[], None]) -> None:
         while True:
             if self.write_page >= RING_PAGES:
-                reclaim_cb()
                 keep_next = self.next_seq
+                reclaim_cb()
                 self._rescan()
                 self.next_seq = keep_next
                 if self.write_page >= RING_PAGES:
@@ -168,8 +168,8 @@ class RingLog:
                 return
             nxt = self.write_page + 1
             if nxt >= RING_PAGES:
-                reclaim_cb()
                 keep_next = self.next_seq
+                reclaim_cb()
                 self._rescan()
                 self.next_seq = keep_next
                 continue
@@ -217,9 +217,10 @@ class RingLog:
         return seq
 
     def tip_seq(self) -> int:
-        tip = 0
+        tip = None
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            tip = rec.seq
-        return tip
+            if tip is None or newer_seq(tip, rec.seq):
+                tip = rec.seq
+        return 0 if tip is None else tip

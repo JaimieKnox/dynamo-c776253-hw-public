@@ -1,0 +1,59 @@
+{
+  "case_id": "h_reclaim_tip",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 2
+    },
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 113,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "p",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 4,
+      "image_version": 1
+    },
+    {
+      "op": "reboot"
+    },
+    {
+      "op": "put",
+      "key": "q",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 4,
+      "image_version": 80,
+      "tear": "after_candidate"
+    }
+  ]
+}

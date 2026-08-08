@@ -31,5 +31,5 @@ Graded checks:
 4. `boot_bank` and `sec_rev` match `/app/spec/banks.md` for each pack.
 5. `tip_seq` is the modular sequence tip of complete records, or `0` when there are none.
 6. `sec_floor` matches each pack meta floor after dual-copy recovery.
-7. `/app/smoke/run_smoke.py` still succeeds for `sample_*` after the repair.
+7. The `sample_*` packs still recover correctly after the repair (sample smoke stays green).
 8. The repaired code under `/app/norctl` must itself reproduce the graded recovery outputs when re-run against the case packs.

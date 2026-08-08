@@ -128,9 +128,9 @@ def test_criterion_6_sec_floor():
 
 
 def test_criterion_7_smoke_samples():
-    """Criterion 7: sample smoke remains green on repaired controller."""
+    """Criterion 7: sample packs remain green on repaired controller."""
     completed = subprocess.run(
-        [sys.executable, "/app/smoke/run_smoke.py"],
+        [sys.executable, "/tests/smoke_samples.py"],
         check=False,
         capture_output=True,
         text=True,

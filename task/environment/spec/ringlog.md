@@ -39,7 +39,9 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-On scan and after reboot, the append write cursor resumes after the last well-formed header record in flash order. The append counter `next_seq` advances from the complete-record tip under the wrap rule below: one more than that tip, wrapping in 16 bits and skipping zero. Output `tip_seq` is that same tip, or `0` if none.
+On scan and after reboot, the append write cursor resumes after the last well-formed header in flash order, whether or not that record is durable. Completeness decides fold membership and tip selection only, not where the write cursor resumes.
+
+The append counter `next_seq` and output `tip_seq` both come from the modular complete-record tip under the wrap rule below (one more than that tip for `next_seq`, wrapping in 16 bits and skipping zero). Neither counter is taken from flash-order last-complete alone when wrap makes that differ from the modular tip. Output `tip_seq` is `0` when there is no complete record.
 
 ## Sequence ordering
 

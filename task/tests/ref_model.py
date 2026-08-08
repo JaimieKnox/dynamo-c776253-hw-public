@@ -363,7 +363,7 @@ def _pack_slot(
     return body + bytes([c & 0xFF, (c >> 8) & 0xFF])
 
 
-def write_bank(flash: Flash, which: str, info: SlotInfo) -> None:
+def write_bank(flash: Flash, which: str, info: BankInfo) -> None:
     page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     flash.erase_page(page)
     flash.program(
@@ -378,7 +378,7 @@ def write_bank(flash: Flash, which: str, info: SlotInfo) -> None:
     )
 
 
-def read_bank(flash: Flash, which: str) -> SlotInfo:
+def read_bank(flash: Flash, which: str) -> BankInfo:
     page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     raw = flash.read(page * PAGE_SIZE, 14)
     magic = raw[0] | (raw[1] << 8)

@@ -72,7 +72,7 @@ def _unpack_slot(raw: bytes) -> BankInfo:
     )
 
 
-def write_bank(flash: Flash, which: str, info: SlotInfo) -> None:
+def write_bank(flash: Flash, which: str, info: BankInfo) -> None:
     page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     flash.erase_page(page)
     flash.program(page * PAGE_SIZE, _pack_slot(info.state, info.slot_id, info.security_version, info.generation, info.image_version))

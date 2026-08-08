@@ -58,9 +58,10 @@ class RingLog:
         self._rescan()
 
     def _rescan(self) -> None:
-        max_seq = None
+        tip = None
+        last_complete = None
         end_page, end_off = 0, 0
-        saw = False
+        saw_cursor = False
         for page in range(RING_PAGES):
             off = 0
             while off + HDR_SIZE <= PAGE_SIZE:
@@ -83,29 +84,30 @@ class RingLog:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    if max_seq is None or newer_seq(max_seq, seq):
-                        max_seq = seq
+                    if tip is None or newer_seq(tip, seq):
+                        tip = seq
+                    last_complete = seq
+                    end_page, end_off = page, off + total
+                    saw_cursor = True
                 off += total
-                end_page, end_off = page, off
-                saw = True
-        if not saw:
+        if not saw_cursor:
             self.write_page = 0
             self.write_off = 0
         else:
             self.write_page = end_page
             self.write_off = end_off
-        if max_seq is None:
+        if last_complete is None:
             self.next_seq = 1
         else:
-            self.next_seq = (max_seq + 1) & 0xFFFF
+            self.next_seq = (last_complete + 1) & 0xFFFF
             if self.next_seq == 0:
                 self.next_seq = 1
 
     def record_complete(
         self, page: int, offset: int, flags: int, key_len: int, val_len: int
     ) -> bool:
-        """Require SEAL_HDR and matching pay_crc."""
-        if not (flags & SEAL_HDR):
+        """Require SEAL_HDR, SEAL_PAY, and matching pay_crc."""
+        if not (flags & SEAL_HDR) or not (flags & SEAL_PAY):
             return False
         pay_len = key_len + val_len
         addr = page * PAGE_SIZE + offset + HDR_SIZE
@@ -216,10 +218,10 @@ class RingLog:
         return seq
 
     def tip_seq(self) -> int:
-        gen = 0
+        tip = None
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if rec.seq > gen:
-                gen = rec.seq
-        return gen
+            if tip is None or newer_seq(tip, rec.seq):
+                tip = rec.seq
+        return 0 if tip is None else tip

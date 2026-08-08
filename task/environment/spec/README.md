@@ -57,4 +57,4 @@ Closed set of `op` values:
 - `set_policy` with `policy` int and optional `tear`
 - `reboot` (rebuilds the in-memory ring view from flash)
 
-Closed tear sets: ring `after_header` / `after_payload`; promote `after_candidate` / `after_invalidate`; meta `after_mirror`.
+Closed tear sets: ring `after_header` / `after_payload`, promote `after_candidate` / `after_invalidate`, and meta `after_mirror`.

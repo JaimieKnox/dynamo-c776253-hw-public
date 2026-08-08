@@ -1,24 +1,10 @@
 {
-  "case_id": "h_horizon_triple",
+  "case_id": "h_cursor_seal",
   "sec_floor": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
-      "op": "raise_floor",
-      "floor": 4,
-      "tear": "after_mirror"
+      "policy": 2
     },
     {
       "op": "force_seq",
@@ -39,19 +25,23 @@
       "value": "v1"
     },
     {
-      "op": "pad_puts",
-      "count": 113,
-      "val_len": 40
+      "op": "put",
+      "key": "torn",
+      "value": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "tear": "after_payload"
+    },
+    {
+      "op": "reboot"
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "n",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 3,
       "image_version": 1
     },
     {
@@ -59,14 +49,14 @@
     },
     {
       "op": "put",
-      "key": "q",
+      "key": "m",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80,
+      "sec_rev": 3,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

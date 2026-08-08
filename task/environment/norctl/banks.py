@@ -72,7 +72,7 @@ def _unpack_slot(raw: bytes) -> BankInfo:
     )
 
 
-def write_bank(flash: Flash, which: str, info: SlotInfo) -> None:
+def write_bank(flash: Flash, which: str, info: BankInfo) -> None:
     page = BANK_X_PAGE if which == "X" else BANK_Y_PAGE
     flash.erase_page(page)
     flash.program(page * PAGE_SIZE, _pack_slot(info.state, info.slot_id, info.security_version, info.generation, info.image_version))
@@ -199,15 +199,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if info.generation > best.generation:
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if info.generation < best.generation:
-            continue
-        if info.image_version > best.image_version:
-            best_name, best = name, info
-            continue
-        if info.image_version < best.image_version:
+        if _gen_newer(info.generation, best.generation):
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info

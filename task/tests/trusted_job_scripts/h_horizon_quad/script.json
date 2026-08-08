@@ -1,5 +1,5 @@
 {
-  "case_id": "h_meta_plant",
+  "case_id": "h_horizon_quad",
   "sec_floor": 1,
   "ops": [
     {
@@ -17,12 +17,40 @@
     },
     {
       "op": "raise_floor",
-      "floor": 5,
+      "floor": 4,
       "tear": "after_mirror"
     },
     {
       "op": "force_seq",
-      "seq": 40000
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "put",
+      "key": "hole",
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "tear": "after_payload"
+    },
+    {
+      "op": "reboot"
+    },
+    {
+      "op": "pad_puts",
+      "count": 110,
+      "val_len": 40
     },
     {
       "op": "put",
@@ -32,12 +60,11 @@
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 6,
+      "sec_rev": 5,
       "image_version": 1
     },
     {
-      "op": "force_seq",
-      "seq": 100
+      "op": "reboot"
     },
     {
       "op": "put",
@@ -47,8 +74,8 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 6,
-      "image_version": 1,
+      "sec_rev": 5,
+      "image_version": 80,
       "tear": "after_candidate"
     }
   ]

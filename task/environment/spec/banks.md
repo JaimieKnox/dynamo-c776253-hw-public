@@ -40,7 +40,7 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor in both meta copies. Epoch plants used in tests are still ordinary meta updates with respect to policy.
+Policy travels with the floor on ordinary dual-copy meta updates.
 
 ### Dual-copy recovery invariant
 
@@ -48,7 +48,7 @@ Among copies that validate magic and CRC, recover the floor and policy from the 
 
 ### Promote invariant
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the device ring tip that recovery would report as `tip_seq` at that moment.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the tip that append continuity treats as current at promote time under the Write cursor rules in ringlog.md.
 
 ### Boot selection invariant
 

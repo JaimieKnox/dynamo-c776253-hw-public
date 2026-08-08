@@ -131,7 +131,7 @@ def _read_meta_full(flash: Flash):
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or epoch > best[0]:
+        if best is None or _gen_newer(epoch, best[0]):
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0
@@ -148,7 +148,7 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         if parsed is None:
             continue
         epoch = parsed[1]
-        if max_epoch == 0 or epoch > max_epoch:
+        if max_epoch == 0 or _gen_newer(epoch, max_epoch):
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:

@@ -39,9 +39,11 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-On scan and after reboot, the append write cursor must resume so a later append cannot overwrite a well-formed header already present in flash order. Durability (completeness) still decides which records participate in NVS fold and tip selection.
+After scan the ring has one complete-record tip under the wrap rule below. Reported `tip_seq` is that tip, or `0` when no complete record exists. Append allocation continues from that tip: `next_seq` is one more than the tip in 16 bits, skipping zero.
 
-The append counter `next_seq` must stay consistent with output `tip_seq`: after scan, `next_seq` is one more than the complete-record tip under the wrap rule below (wrap in 16 bits, skip zero), and `tip_seq` is that tip or `0` when none exist. A scan that advances those two quantities from different notions of "last sequence" is incorrect when wrap makes the notions disagree.
+Append placement continues in flash order after prior programmed headers. Incomplete headers therefore remain visible to later scans as non-durable entries. Completeness still decides which records participate in NVS fold and tip selection.
+
+Promote stamps carry the tip that append continuity treats as current at promote time. Readers may take that tip from the reported complete-record tip or from the sequence that immediately precedes the next append allocation when those agree under the wrap rule.
 
 ## Sequence ordering
 

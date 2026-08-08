@@ -12,8 +12,8 @@ agent_tested = "Terminus-2"
 task_objective = ["debug", "fix", "recover_or_repair_artifact"]
 artifact_type = ["codebase", "hardware_or_firmware_artifact", "generated_output_artifact"]
 expert_time_estimate_hours = 12
-difficulty_explanation = "Hard packs combine power-tear cursor holes, 16-bit sequence wrap, dual-copy meta recovery, compaction pressure, and equal-security bank selection so a fix that only patches one plane still fails held-out recovery. Agents must keep tip reporting, append continuity, meta freshness, and boot ranking consistent across reboot and promote. The environment is a purpose-built synthetic simulator for embedded and OTA firmware engineers."
-solution_explanation = "Bring scan resume, append continuity, meta freshness, policy carry, and compact tip ownership in line with /app/spec invariants, then re-run the suite runner to emit state JSON and suite_ledger.jsonl."
+difficulty_explanation = "Hard packs require multi-plane recovery agreement under 16-bit wrap, power tear, compaction pressure, dual-copy meta freshness, and equal-security bank ranking after reboot and promote. A repair that aligns only one plane still fails held-out end-to-end recovery. The environment is a purpose-built synthetic simulator for embedded and OTA firmware engineers."
+solution_explanation = "Bring ring recovery, meta freshness, and bank selection in line with /app/spec invariants, then re-run the suite runner to emit state JSON and suite_ledger.jsonl."
 verification_explanation = "A two-phase verifier derives sealed expectations from an independent reference model, removes that model from the tests tree, then grades outputs by strict JSON equality on nvs, boot_bank, sec_rev, tip_seq, and sec_floor. Schema and case order are checked on suite_ledger.jsonl and per-case state.json. Sample smoke must still pass. The verifier also re-runs python3 -m norctl against trusted packs so unrepaired controller code cannot pass by writing outputs alone."
 
 [verifier]

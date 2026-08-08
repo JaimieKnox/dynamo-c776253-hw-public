@@ -43,6 +43,8 @@ Append placement walks programmed headers in flash order and continues after the
 
 There is a single ring tip shared by reported `tip_seq`, promote tip stamps, and append `next_seq` allocation: the newest complete sequence under the wrap rule below. Reported `tip_seq` is that tip, or `0` when no complete record exists. `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot` and after `force_seq` plants, the same tip continues to govern both reporting and later appends.
 
+Compaction erase and rewrite keeps the pre-compaction sequence counter. Rewritten live keys are not reallocated from 1. See compact.md.
+
 ## Sequence ordering
 
 Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive `next_seq`, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.

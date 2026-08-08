@@ -58,9 +58,9 @@ class RingLog:
         self._rescan()
 
     def _rescan(self) -> None:
-        max_seq = None
+        tip = None
         end_page, end_off = 0, 0
-        saw = False
+        saw_cursor = False
         for page in range(RING_PAGES):
             off = 0
             while off + HDR_SIZE <= PAGE_SIZE:
@@ -83,21 +83,22 @@ class RingLog:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    if max_seq is None or newer_seq(max_seq, seq):
-                        max_seq = seq
+                    if tip is None or newer_seq(tip, seq):
+                        tip = seq
+                # Advance past programmed headers, including incomplete ones.
+                end_page, end_off = page, off + total
+                saw_cursor = True
                 off += total
-                end_page, end_off = page, off
-                saw = True
-        if not saw:
+        if not saw_cursor:
             self.write_page = 0
             self.write_off = 0
         else:
             self.write_page = end_page
             self.write_off = end_off
-        if max_seq is None:
+        if tip is None:
             self.next_seq = 1
         else:
-            self.next_seq = (max_seq + 1) & 0xFFFF
+            self.next_seq = (tip + 1) & 0xFFFF
             if self.next_seq == 0:
                 self.next_seq = 1
 
@@ -212,10 +213,10 @@ class RingLog:
         return seq
 
     def tip_seq(self) -> int:
-        gen = None
+        tip = None
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if gen is None or newer_seq(gen, rec.seq):
-                gen = rec.seq
-        return 0 if gen is None else gen
+            if tip is None or newer_seq(tip, rec.seq):
+                tip = rec.seq
+        return 0 if tip is None else tip

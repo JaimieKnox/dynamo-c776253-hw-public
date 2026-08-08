@@ -8,13 +8,13 @@ from typing import Dict, Optional, Tuple
 from .flash_hal import RING_PAGES, Flash
 from .ringlog import TOMBSTONE, RingLog, newer_seq
 
+
 def fold_live(ring: RingLog) -> Dict[bytes, Tuple[bytes, int]]:
     """Fold complete records. Tombstone wins then key is omitted."""
     state: Dict[bytes, Tuple[Optional[bytes], int]] = {}
     for rec in ring.iter_records():
         if not rec.complete:
             continue
-
         if rec.flags & TOMBSTONE:
             state[rec.key] = (None, rec.seq)
         else:
@@ -26,6 +26,7 @@ def fold_live(ring: RingLog) -> Dict[bytes, Tuple[bytes, int]]:
         live[k] = (val, seq)
     return live
 
+
 def _live_order(a, b) -> int:
     sa = a[1][1]
     sb = b[1][1]
@@ -36,6 +37,7 @@ def _live_order(a, b) -> int:
     if newer_seq(sb, sa):
         return 1
     return 0
+
 
 def compact(flash: Flash, ring: RingLog) -> None:
     """Compact ring: erase ring pages and rewrite live records."""

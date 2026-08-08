@@ -85,9 +85,8 @@ class RingLog:
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if tip is None or newer_seq(tip, seq):
                         tip = seq
-                # Advance past programmed headers, including incomplete ones.
-                end_page, end_off = page, off + total
-                saw_cursor = True
+                    end_page, end_off = page, off + total
+                    saw_cursor = True
                 off += total
         if not saw_cursor:
             self.write_page = 0
@@ -157,10 +156,8 @@ class RingLog:
     def ensure_space(self, need: int, reclaim_cb: Callable[[], None]) -> None:
         while True:
             if self.write_page >= RING_PAGES:
-                keep_next = self.next_seq
                 reclaim_cb()
                 self._rescan()
-                self.next_seq = keep_next
                 if self.write_page >= RING_PAGES:
                     raise RuntimeError("ring log full after compact")
                 continue
@@ -168,10 +165,8 @@ class RingLog:
                 return
             nxt = self.write_page + 1
             if nxt >= RING_PAGES:
-                keep_next = self.next_seq
                 reclaim_cb()
                 self._rescan()
-                self.next_seq = keep_next
                 continue
             self.write_page = nxt
             self.write_off = 0
@@ -217,10 +212,10 @@ class RingLog:
         return seq
 
     def tip_seq(self) -> int:
-        tip = None
+        tip = 0
         for rec in self.iter_records():
             if not rec.complete:
                 continue
-            if tip is None or newer_seq(tip, rec.seq):
+            if rec.seq > tip:
                 tip = rec.seq
-        return 0 if tip is None else tip
+        return tip

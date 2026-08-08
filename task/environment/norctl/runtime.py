@@ -12,6 +12,7 @@ from .nvs import recover_nvs
 from .compact import compact
 from .banks import (
     _pack_meta,
+    _read_meta_full,
     promote,
     read_meta,
     select_boot_bank,
@@ -60,9 +61,7 @@ class Runtime:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        tip = (self.ring.next_seq - 1) & 0xFFFF
-        if tip == 0:
-            tip = self.ring.tip_seq()
+        tip = self.ring.tip_seq()
         promote(
             self.flash,
             bank,
@@ -76,7 +75,8 @@ class Runtime:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
+        _floor, policy = _read_meta_full(self.flash)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)

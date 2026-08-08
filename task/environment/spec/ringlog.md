@@ -39,11 +39,12 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-Append placement walks programmed headers in flash order and continues after the last header region that occupies flash from a programmed header, even when that header never finished both seal phases. Completeness still decides which records participate in NVS fold and tip selection. Do not park the write cursor before an incomplete programmed header when a later append would overlap that header region.
+Append placement resumes after the last well-formed programmed header region in flash order. Completeness still decides which records participate in NVS fold and tip selection.
 
-Reported `tip_seq`, promote tip stamps, and append `next_seq` allocation share one ring tip: the newest complete sequence under the wrap rule below (or `0` when none). `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot` and after `force_seq` plants, reporting and later appends stay on that same tip rule, including after compaction rewrite returns. Do not advance `next_seq` from the flash-order last complete sequence when that value disagrees with the wrap-rule tip used for `tip_seq`.
+Reported `tip_seq`, promote tip stamps, and append `next_seq` allocation share one ring tip: the newest complete sequence under the wrap rule below (or `0` when none). `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot`, after reclaim rewrite, and after `force_seq` plants, reporting and later appends stay on that same tip rule.
 
 Compaction erase and rewrite must leave append allocation coherent with the post-rewrite wrap tip. See compact.md.
+
 
 ## Sequence ordering
 

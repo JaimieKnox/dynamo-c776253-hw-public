@@ -7,3 +7,5 @@ Compaction is a space-recovery transform, not a sequence-domain reset. Live keys
 Live-key fold during compaction uses the same wrap-newer and tombstone rules as NVS recovery.
 
 Rewrite emits those puts in modular older-first order among the live keys so the post-rewrite tip lands on the newest rewritten allocation.
+
+After reclaim returns, append allocation remains on the post-rewrite wrap tip. A reclaim path must not restore a pre-reclaim append counter over that tip.

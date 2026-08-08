@@ -58,9 +58,9 @@ class RingLog:
         self._rescan()
 
     def _rescan(self) -> None:
+        tip = None
         end_page, end_off = 0, 0
         saw_cursor = False
-        last_complete = None
         for page in range(RING_PAGES):
             off = 0
             while off + HDR_SIZE <= PAGE_SIZE:
@@ -83,9 +83,10 @@ class RingLog:
                 if off + total > PAGE_SIZE:
                     break
                 if self.record_complete(page, off, flags, key_len, val_len):
-                    last_complete = seq
-                    end_page, end_off = page, off + total
-                    saw_cursor = True
+                    if tip is None or newer_seq(tip, seq):
+                        tip = seq
+                end_page, end_off = page, off + total
+                saw_cursor = True
                 off += total
         if not saw_cursor:
             self.write_page = 0
@@ -93,10 +94,10 @@ class RingLog:
         else:
             self.write_page = end_page
             self.write_off = end_off
-        if last_complete is None:
+        if tip is None:
             self.next_seq = 1
         else:
-            self.next_seq = (last_complete + 1) & 0xFFFF
+            self.next_seq = (tip + 1) & 0xFFFF
             if self.next_seq == 0:
                 self.next_seq = 1
 
@@ -155,8 +156,10 @@ class RingLog:
     def ensure_space(self, need: int, reclaim_cb: Callable[[], None]) -> None:
         while True:
             if self.write_page >= RING_PAGES:
+                kept = self.next_seq
                 reclaim_cb()
                 self._rescan()
+                self.next_seq = kept
                 if self.write_page >= RING_PAGES:
                     raise RuntimeError("ring log full after compact")
                 continue
@@ -164,8 +167,10 @@ class RingLog:
                 return
             nxt = self.write_page + 1
             if nxt >= RING_PAGES:
+                kept = self.next_seq
                 reclaim_cb()
                 self._rescan()
+                self.next_seq = kept
                 continue
             self.write_page = nxt
             self.write_off = 0

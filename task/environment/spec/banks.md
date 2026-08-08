@@ -40,15 +40,15 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch and must keep the policy bits already recovered from flash. Do not clear policy bits to zero when planting a chosen epoch.
+Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch while the policy word recovered from flash remains unchanged.
 
 ### Dual-copy recovery invariant
 
-Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Do not pick the larger raw epoch integer when the wrap rule disagrees. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
+Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated. Epoch selection on both recover and update paths uses that wrap rule rather than integer magnitude alone.
 
 ### Promote invariant
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the shared ring tip from the Write cursor rules in ringlog.md at promote time.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the shared ring tip from the Write cursor rules in ringlog.md at promote time, not a raw predecessor of the append counter when those disagree after reclaim or wrap.
 
 ### Boot selection invariant
 

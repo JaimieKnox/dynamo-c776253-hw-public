@@ -48,8 +48,8 @@ Among copies that validate magic and CRC, recover the floor and policy from the 
 
 ### Promote invariant
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the tip that append continuity treats as current at promote time under the Write cursor rules in ringlog.md.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the shared ring tip from the Write cursor rules in ringlog.md at promote time.
 
 ### Boot selection invariant
 
-Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule (not a raw integer greater-than on the u16 stamp), and bank id (lower wins).
+Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins).

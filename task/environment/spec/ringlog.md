@@ -39,11 +39,9 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Write cursor
 
-After every scan the ring has exactly one complete-record tip: the newest complete sequence under the wrap rule below (not the last complete record in flash order). Reported `tip_seq` is that wrap tip, or `0` when no complete record exists. Append allocation must use the same tip: `next_seq` is one more than that wrap tip in 16 bits, skipping zero. Deriving `next_seq` from flash order while reporting the wrap tip (or the reverse) is incorrect, including after `reboot` and after `force_seq` plants.
+Append placement walks programmed headers in flash order and continues after the last header that was fully programmed into flash, including headers that never reached payload seal. Completeness still decides which records participate in NVS fold and tip selection.
 
-Append placement continues in flash order after prior programmed headers. Incomplete headers therefore remain visible to later scans as non-durable entries. Completeness still decides which records participate in NVS fold and tip selection.
-
-Promote stamps must carry that same wrap tip (the value `tip_seq` would report) at promote time. Do not stamp from a flash-order predecessor of `next_seq` when that predecessor is not the wrap tip.
+There is a single ring tip shared by reported `tip_seq`, promote tip stamps, and append `next_seq` allocation: the newest complete sequence under the wrap rule below. Reported `tip_seq` is that tip, or `0` when no complete record exists. `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot` and after `force_seq` plants, the same tip continues to govern both reporting and later appends.
 
 ## Sequence ordering
 

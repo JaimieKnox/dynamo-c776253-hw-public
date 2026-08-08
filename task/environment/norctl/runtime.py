@@ -62,7 +62,9 @@ class Runtime:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        tip = self.ring.tip_seq()
+        tip = (self.ring.next_seq - 1) & 0xFFFF
+        if tip == 0:
+            tip = self.ring.tip_seq()
         promote(
             self.flash,
             bank,

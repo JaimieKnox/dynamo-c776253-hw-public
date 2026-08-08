@@ -40,7 +40,7 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor in both meta copies. Planting a test epoch pair preserves the current policy word.
+Policy travels with the floor in both meta copies. Epoch plants used in tests are still ordinary meta updates with respect to policy.
 
 ### Dual-copy recovery invariant
 

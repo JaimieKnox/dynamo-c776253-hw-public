@@ -85,7 +85,6 @@ class RingLog:
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if tip is None or newer_seq(tip, seq):
                         tip = seq
-                # Advance past programmed headers, including incomplete ones.
                 end_page, end_off = page, off + total
                 saw_cursor = True
                 off += total

@@ -72,9 +72,10 @@ def reference_by_case() -> dict:
 
 
 def test_criterion_1_suite_ledger_order():
-    """Criterion 1: suite ledger exists with ascending trusted case ids."""
+    """Criterion 1: suite ledger covers every trusted case pack in ascending id order."""
     rows, lines = read_suite_ledger()
     wanted = trusted_case_ids()
+    assert wanted, "trusted_job_scripts must contain graded case packs"
     got_ids = [row["case_id"] for row in rows]
     assert got_ids == wanted, f"ledger ids {got_ids} != trusted {wanted}"
     golden = reference_by_case()

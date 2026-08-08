@@ -125,13 +125,13 @@ def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: 
 
 
 def _read_meta_full(flash: Flash):
-    best = None  # (epoch, floor, policy)
+    best = None
     for page in (META_PAGE, META_MIRROR_PAGE):
         parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 10))
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or _gen_newer(best[0], epoch):
+        if best is None or epoch > best[0]:
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0
@@ -148,7 +148,7 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         if parsed is None:
             continue
         epoch = parsed[1]
-        if max_epoch == 0 or _gen_newer(max_epoch, epoch):
+        if max_epoch == 0 or epoch > max_epoch:
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:

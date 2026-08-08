@@ -12,7 +12,6 @@ from .nvs import recover_nvs
 from .compact import compact
 from .banks import (
     _pack_meta,
-    _read_meta_full,
     promote,
     read_meta,
     select_boot_bank,
@@ -27,8 +26,10 @@ class Runtime:
         self.ring = RingLog(self.flash)
 
     def _compact(self) -> None:
+        prior = self.ring.next_seq
         compact(self.flash, self.ring)
         self.ring._rescan()
+        self.ring.next_seq = prior
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.ring.append(
@@ -75,8 +76,7 @@ class Runtime:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        _floor, policy = _read_meta_full(self.flash)
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)

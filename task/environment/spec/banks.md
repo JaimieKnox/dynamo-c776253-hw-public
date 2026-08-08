@@ -40,11 +40,11 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch and must keep the policy bits already recovered from flash.
+Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch and must keep the policy bits already recovered from flash. Do not clear policy bits to zero when planting a chosen epoch.
 
 ### Dual-copy recovery invariant
 
-Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
+Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Do not pick the larger raw epoch integer when the wrap rule disagrees. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
 
 ### Promote invariant
 

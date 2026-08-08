@@ -25,7 +25,7 @@ Create `/app/out/suite_ledger.jsonl` as well. Each line is one case object with 
 
 Graded checks:
 
-1. The suite ledger file exists and covers every pack in ascending `case_id` order.
+1. The suite ledger file exists and covers every case pack under `/app/cases` in ascending `case_id` order.
 2. Every pack has a state file with the exact required key set.
 3. `nvs` matches `/app/spec` for each pack after ring fold and compaction.
 4. `boot_bank` and `sec_rev` match `/app/spec/banks.md` for each pack.

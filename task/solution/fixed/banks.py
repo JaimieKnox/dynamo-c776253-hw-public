@@ -125,7 +125,7 @@ def _program_meta_page(flash: Flash, page: int, floor: int, epoch: int, policy: 
 
 
 def _read_meta_full(flash: Flash):
-    best = None  # (epoch, floor, policy)
+    best = None
     for page in (META_PAGE, META_MIRROR_PAGE):
         parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 10))
         if parsed is None:

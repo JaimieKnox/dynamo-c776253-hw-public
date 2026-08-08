@@ -9,7 +9,7 @@ Case packs sit under `/app/cases`. The `sample_*` packs stay green on the shippe
 Bring controller recovery in line with the spec, then generate outputs for every pack under `/app/cases` by running:
 
 ```
-python3 -m norctl /app/cases /app/out
+PYTHONPATH=/app python3 -m norctl /app/cases /app/out
 ```
 
 Create `/app/out/<case_id>/state.json` for each pack. The JSON object must contain exactly:

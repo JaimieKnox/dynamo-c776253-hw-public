@@ -5,12 +5,13 @@
 # Phase B grades agent outputs with no oracle import.
 set -u
 mkdir -p /logs/verifier
-# Prevent agent-writable /app (ENV PYTHONPATH=/app) from shadowing stdlib/pytest.
+# Keep agent-writable /app off verifier sys.path (no Dockerfile .pth, no PYTHONPATH=/app).
 unset PYTHONPATH
-python3 -I -B /tests/derive_expectations.py
+export PYTHONPATH=/tests
+python3 -B /tests/derive_expectations.py
 phase_one=$?
 if [ $phase_one -eq 0 ]; then
-  python3 -I -B -m pytest --ctrf /logs/verifier/ctrf.json /tests/test_outputs.py -rA
+  python3 -B -m pytest --ctrf /logs/verifier/ctrf.json /tests/test_outputs.py -rA
   status=$?
 else
   echo "phase one failed with status $phase_one"

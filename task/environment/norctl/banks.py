@@ -131,7 +131,7 @@ def _read_meta_full(flash: Flash):
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or _gen_newer(epoch, best[0]):
+        if best is None or _gen_newer(best[0], epoch):
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0
@@ -148,7 +148,7 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         if parsed is None:
             continue
         epoch = parsed[1]
-        if max_epoch == 0 or _gen_newer(epoch, max_epoch):
+        if max_epoch == 0 or _gen_newer(max_epoch, epoch):
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
@@ -199,10 +199,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if _gen_newer(best.generation, info.generation):
+        if info.generation > best.generation:
             best_name, best = name, info
             continue
-        if _gen_newer(info.generation, best.generation):
+        if info.generation < best.generation:
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info

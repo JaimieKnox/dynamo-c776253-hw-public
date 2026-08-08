@@ -26,10 +26,8 @@ class Runtime:
         self.ring = RingLog(self.flash)
 
     def _compact(self) -> None:
-        keep_next = self.ring.next_seq
         compact(self.flash, self.ring)
         self.ring._rescan()
-        self.ring.next_seq = keep_next
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.ring.append(

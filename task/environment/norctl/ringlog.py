@@ -59,7 +59,6 @@ class RingLog:
 
     def _rescan(self) -> None:
         tip = None
-        last_complete = None
         end_page, end_off = 0, 0
         saw_cursor = False
         for page in range(RING_PAGES):
@@ -86,7 +85,6 @@ class RingLog:
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if tip is None or newer_seq(tip, seq):
                         tip = seq
-                    last_complete = seq
                     end_page, end_off = page, off + total
                     saw_cursor = True
                 off += total
@@ -96,10 +94,10 @@ class RingLog:
         else:
             self.write_page = end_page
             self.write_off = end_off
-        if last_complete is None:
+        if tip is None:
             self.next_seq = 1
         else:
-            self.next_seq = (last_complete + 1) & 0xFFFF
+            self.next_seq = (tip + 1) & 0xFFFF
             if self.next_seq == 0:
                 self.next_seq = 1
 

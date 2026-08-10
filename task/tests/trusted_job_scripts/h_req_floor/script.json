@@ -1,0 +1,41 @@
+{
+  "case_id": "h_req_floor",
+  "sec_floor": 2,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 10
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 11
+    },
+    {
+      "op": "put",
+      "key": "b",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 3,
+      "image_version": 1,
+      "tear": "after_candidate"
+    }
+  ]
+}

@@ -180,7 +180,7 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
         if info.state not in (ACTIVE, CANDIDATE):
             continue
         if policy & REQUIRE_NEWER_SECURITY:
-            if info.security_version <= floor:
+            if info.security_version < floor:
                 continue
         else:
             if info.security_version < floor:

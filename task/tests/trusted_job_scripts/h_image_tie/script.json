@@ -1,0 +1,32 @@
+{
+  "case_id": "h_image_tie",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 2
+    },
+    {
+      "op": "force_seq",
+      "seq": 20
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 3,
+      "image_version": 1
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 3,
+      "image_version": 99,
+      "tear": "after_candidate"
+    }
+  ]
+}

@@ -40,16 +40,16 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Floor and policy travel together on ordinary dual-copy meta updates. A `force_meta_epoch` plant updates floor and epoch on both copies while leaving the accompanying policy word consistent with the dual-copy recover view of the device at plant time.
+Floor and policy travel together on ordinary dual-copy meta updates. Case ops that plant meta must leave a recover-consistent dual-copy view for floor, epoch, and policy after the plant completes.
 
 ### Dual-copy freshness
 
-Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. An update advances from that wrap-newest epoch, programs the mirror before the primary, wraps in 16 bits, and skips zero. An `after_mirror` tear leaves only the mirror updated.
+Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. Updates advance freshness under that rule, keep both copies coherent when no tear is requested, and honor `after_mirror` tears that interrupt the dual-copy update mid-flight.
 
 ### Promote freshness stamp
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp captures promote-time ring freshness under the wrap rule so equal-security banks still rank correctly after reboot.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must be wrap-coherent with ring freshness at promote time so equal-security banks still rank correctly after reboot.
 
 ### Boot selection invariant
 
-Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational only and never breaks a tip-stamp or bank-id tie.
+Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational metadata on the bank page.

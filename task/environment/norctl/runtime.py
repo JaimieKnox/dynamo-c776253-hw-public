@@ -26,8 +26,10 @@ class Runtime:
         self.ring = RingLog(self.flash)
 
     def _compact(self) -> None:
+        hold = self.ring.next_seq
         compact(self.flash, self.ring)
         self.ring._rescan()
+        self.ring.next_seq = hold
 
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.ring.append(
@@ -60,13 +62,13 @@ class Runtime:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        stamp = (self.ring.next_seq - 1) & 0xFFFF
+        tip = self.ring.tip_seq()
         promote(
             self.flash,
             bank,
             sec_rev,
             image_version,
-            generation=stamp,
+            generation=tip,
             tear=tear,
         )
 

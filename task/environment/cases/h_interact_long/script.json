@@ -1,5 +1,5 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_interact_long",
   "sec_floor": 1,
   "ops": [
     {
@@ -50,12 +50,21 @@
       "image_version": 1
     },
     {
-      "op": "force_seq",
-      "seq": 65400
+      "op": "reboot"
     },
     {
       "op": "put",
       "key": "q",
+      "value": "1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 20,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "r",
       "value": "1"
     },
     {
@@ -64,9 +73,6 @@
       "sec_rev": 5,
       "image_version": 80,
       "tear": "after_candidate"
-    },
-    {
-      "op": "reboot"
     }
   ]
 }

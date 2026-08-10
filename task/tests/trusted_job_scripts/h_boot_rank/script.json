@@ -1,5 +1,5 @@
 {
-  "case_id": "h_horizon",
+  "case_id": "h_boot_rank",
   "sec_floor": 1,
   "ops": [
     {
@@ -8,22 +8,22 @@
     },
     {
       "op": "force_seq",
-      "seq": 120
+      "seq": 300
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v1"
+      "key": "p",
+      "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
-      "image_version": 1
+      "sec_rev": 4,
+      "image_version": 2
     },
     {
       "op": "force_seq",
-      "seq": 65520
+      "seq": 65000
     },
     {
       "op": "put",
@@ -33,9 +33,12 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80,
+      "sec_rev": 4,
+      "image_version": 9,
       "tear": "after_candidate"
+    },
+    {
+      "op": "reboot"
     }
   ]
 }

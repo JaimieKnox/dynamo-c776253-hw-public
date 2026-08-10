@@ -1,5 +1,5 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_reclaim_fold",
   "sec_floor": 1,
   "ops": [
     {
@@ -25,48 +25,32 @@
       "value": "v1"
     },
     {
-      "op": "put",
-      "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_payload"
-    },
-    {
-      "op": "reboot"
-    },
-    {
       "op": "pad_puts",
-      "count": 110,
+      "count": 113,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "w1",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 3,
       "image_version": 1
     },
     {
-      "op": "force_seq",
-      "seq": 65400
-    },
-    {
       "op": "put",
-      "key": "q",
+      "key": "w2",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80,
+      "sec_rev": 3,
+      "image_version": 1,
       "tear": "after_candidate"
-    },
-    {
-      "op": "reboot"
     }
   ]
 }

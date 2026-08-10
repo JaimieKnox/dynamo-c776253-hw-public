@@ -1,5 +1,5 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_double_reclaim",
   "sec_floor": 1,
   "ops": [
     {
@@ -7,8 +7,19 @@
       "policy": 2
     },
     {
-      "op": "force_seq",
-      "seq": 100
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 112,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "fill",
+      "value": "x"
     },
     {
       "op": "put",
@@ -16,42 +27,29 @@
       "value": "v2"
     },
     {
-      "op": "force_seq",
-      "seq": 65530
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "put",
-      "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_payload"
-    },
-    {
-      "op": "reboot"
-    },
-    {
       "op": "pad_puts",
-      "count": 110,
+      "count": 112,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "p",
-      "value": "1"
+      "key": "fill2",
+      "value": "y"
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v3"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 65400
+      "seq": 50
     },
     {
       "op": "put",
@@ -61,12 +59,9 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80,
+      "sec_rev": 4,
+      "image_version": 1,
       "tear": "after_candidate"
-    },
-    {
-      "op": "reboot"
     }
   ]
 }

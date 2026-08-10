@@ -4,17 +4,7 @@
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 5,
-      "tear": "after_mirror"
+      "policy": 2
     },
     {
       "op": "force_seq",
@@ -35,13 +25,22 @@
       "value": "v1"
     },
     {
+      "op": "put",
+      "key": "hole",
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "tear": "after_payload"
+    },
+    {
+      "op": "reboot"
+    },
+    {
       "op": "pad_puts",
-      "count": 113,
+      "count": 110,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "w1",
+      "key": "p",
       "value": "1"
     },
     {
@@ -52,17 +51,17 @@
     },
     {
       "op": "force_seq",
-      "seq": 50
+      "seq": 65400
     },
     {
       "op": "put",
-      "key": "w2",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 6,
+      "sec_rev": 5,
       "image_version": 80,
       "tear": "after_candidate"
     },

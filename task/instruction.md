@@ -4,6 +4,8 @@ Code lives in `/app/norctl`. Correct behavior is defined only by `/app/spec/READ
 
 Sequence freshness follows the ring wrap rule in `/app/spec/ringlog.md`. Apply that same rule wherever recovery compares sequences.
 
+When a case plants meta with `force_meta_epoch`, the planted copies keep the policy word from the dual-copy recover view at plant time together with the new floor and epoch.
+
 Case packs sit under `/app/cases`. The `sample_*` packs stay green on the shipped tree. The `h_*` packs exercise end-to-end recovery invariants from `/app/spec`.
 
 Bring controller recovery in line with the spec, then generate outputs for every pack under `/app/cases` by running:

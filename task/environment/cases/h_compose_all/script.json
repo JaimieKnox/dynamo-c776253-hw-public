@@ -7,6 +7,15 @@
       "policy": 2
     },
     {
+      "op": "raise_floor",
+      "floor": 7
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 1,
+      "epoch": 5
+    },
+    {
       "op": "force_seq",
       "seq": 100
     },
@@ -62,8 +71,7 @@
       "op": "promote",
       "bank": "Y",
       "sec_rev": 5,
-      "image_version": 80,
-      "tear": "after_candidate"
+      "image_version": 80
     },
     {
       "op": "reboot"

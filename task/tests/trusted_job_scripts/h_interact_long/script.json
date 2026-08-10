@@ -3,10 +3,6 @@
   "sec_floor": 1,
   "ops": [
     {
-      "op": "set_policy",
-      "policy": 2
-    },
-    {
       "op": "force_seq",
       "seq": 100
     },
@@ -39,6 +35,10 @@
       "val_len": 40
     },
     {
+      "op": "force_seq",
+      "seq": 500
+    },
+    {
       "op": "put",
       "key": "p",
       "value": "1"
@@ -51,6 +51,10 @@
     },
     {
       "op": "reboot"
+    },
+    {
+      "op": "force_seq",
+      "seq": 60000
     },
     {
       "op": "put",
@@ -71,8 +75,7 @@
       "op": "promote",
       "bank": "Y",
       "sec_rev": 5,
-      "image_version": 80,
-      "tear": "after_candidate"
+      "image_version": 80
     }
   ]
 }

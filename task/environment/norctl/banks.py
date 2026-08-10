@@ -7,7 +7,6 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, BANK_X_PAGE, BANK_Y_PAGE, Flash
-from .ringlog import RingLog
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -188,10 +187,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
     if not pool:
         return None, None, floor
     if policy & IGNORE_ACTIVE_PREF:
-        chosen = pool
-    else:
         active = [(n, i) for n, i in pool if i.state == ACTIVE]
         chosen = active if active else pool
+    else:
+        chosen = pool
     best_name, best = chosen[0]
     for name, info in chosen[1:]:
         if info.security_version > best.security_version:
@@ -199,10 +198,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if _gen_newer(info.generation, best.generation):
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if _gen_newer(best.generation, info.generation):
+        if _gen_newer(info.generation, best.generation):
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
@@ -217,24 +216,12 @@ def promote(
     generation: int,
     tear: Optional[str] = None,
 ) -> None:
-    stamp = 0
-    for rec in RingLog(flash).iter_records():
-        if rec.complete:
-            stamp = rec.seq
-    generation = stamp
     other = "Y" if which == "X" else "X"
     sid = BANK_ID[which]
     cand = BankInfo(CANDIDATE, sid, security_version, generation, image_version, True)
     write_bank(flash, which, cand)
     if tear == "after_candidate":
         return
-    o = read_bank(flash, other)
-    if o.valid and o.state == ACTIVE:
-        write_bank(
-            flash,
-            other,
-            BankInfo(INVALID, o.slot_id, o.security_version, o.generation, o.image_version, True),
-        )
     if tear == "after_invalidate":
         return
     write_bank(

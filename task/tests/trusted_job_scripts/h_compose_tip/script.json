@@ -7,6 +7,15 @@
       "policy": 2
     },
     {
+      "op": "raise_floor",
+      "floor": 5
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 1,
+      "epoch": 2
+    },
+    {
       "op": "force_seq",
       "seq": 500
     },

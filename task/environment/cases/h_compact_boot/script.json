@@ -3,10 +3,6 @@
   "sec_floor": 1,
   "ops": [
     {
-      "op": "set_policy",
-      "policy": 2
-    },
-    {
       "op": "force_seq",
       "seq": 100
     },
@@ -53,8 +49,7 @@
       "op": "promote",
       "bank": "Y",
       "sec_rev": 4,
-      "image_version": 80,
-      "tear": "after_candidate"
+      "image_version": 80
     }
   ]
 }

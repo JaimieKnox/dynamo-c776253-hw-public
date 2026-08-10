@@ -27,6 +27,15 @@
       "value": "v2"
     },
     {
+      "op": "force_seq",
+      "seq": 300
+    },
+    {
+      "op": "put",
+      "key": "p",
+      "value": "1"
+    },
+    {
       "op": "promote",
       "bank": "X",
       "sec_rev": 3,
@@ -34,11 +43,11 @@
     },
     {
       "op": "force_seq",
-      "seq": 65500
+      "seq": 800
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "q",
       "value": "1"
     },
     {

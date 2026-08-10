@@ -46,10 +46,10 @@ Floor and policy travel together on ordinary dual-copy meta updates. The force_m
 
 Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. Meta updates advance from the wrap-newest epoch among those valid copies, keep both copies coherent when no tear is requested, and honor `after_mirror` tears that interrupt the dual-copy update mid-flight.
 
-### Promote freshness stamp
+### Promote end state
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. Promote-time tip freshness must remain wrap-coherent with the sealed ring so equal-security banks still rank correctly after reboot.
+After a successful promote without tear, the selected bank is `ACTIVE` and the other bank is not `ACTIVE`. Promote-time tip freshness must remain wrap-coherent with the sealed ring so equal-security banks still rank correctly after reboot. Promote tears may stop after the candidate write or after the peer bank leaves the `ACTIVE` state.
 
 ### Boot selection invariant
 
-Boot selection uses floor and policy from the dual-copy meta recovery view at recovery time. Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational metadata on the bank page.
+Boot selection uses floor and policy from the dual-copy meta recovery view at recovery time. Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. When that bit is set, ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational metadata on the bank page.

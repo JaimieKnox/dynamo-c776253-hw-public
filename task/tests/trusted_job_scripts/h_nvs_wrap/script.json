@@ -1,0 +1,36 @@
+{
+  "case_id": "h_nvs_wrap",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "old"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "mid"
+    },
+    {
+      "op": "force_seq",
+      "seq": 40
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "new"
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

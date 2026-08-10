@@ -37,18 +37,18 @@ A power tear may stop after the header (`after_header`) or after the payload byt
 
 A record is durable only once the two-phase commit has fully finished for that record. Both seal phases must be present, with a valid header CRC and a matching payload CRC. Incomplete records are ignored for recovery, tip selection, and compaction folds.
 
-## Write cursor
+## Crash-safe append placement
 
-Append placement resumes after the last well-formed programmed header region in flash order, whether or not that record finished both seal phases. Completeness still decides which records participate in NVS fold and tip selection.
+After any tear, reboot, or reclaim rewrite, the next sealed append must land in erased flash beyond every already-programmed well-formed header region. Later appends must not overlap a torn header that still occupies flash. Durable completeness still gates which records contribute to tip and NVS fold.
 
-Reported `tip_seq` and append `next_seq` allocation share one ring tip: the newest complete sequence under the wrap rule below (or `0` when none). `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot`, after reclaim rewrite, and after `force_seq` plants, reporting and later appends stay on that same tip rule.
+## Tip and allocation coherence
 
-Compaction erase and rewrite must leave append allocation coherent with the post-rewrite wrap tip. See compact.md.
+`tip_seq` reports the wrap-newest complete sequence (or `0` when none). Append allocation after reboot, reclaim, or `force_seq` stays coherent with that same tip: the next assigned sequence is one more than the wrap tip in 16 bits, skipping zero. Tip reporting and later appends must not diverge under wrap.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive `next_seq`, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.
+Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive append allocation, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.
 
 ## NVS fold
 
-Scan complete records in flash order. For each key keep the newest sequence under the wrap rule above. If that record is a tombstone, omit the key. Otherwise keep its value. Deletes must take effect even when compaction never runs.
+Among complete records for each key, keep the wrap-newest value. A wrap-newer tombstone removes the key. Flash-order last-write-wins is not sufficient when sequences wrap. Deletes must take effect even when compaction never runs.

@@ -42,13 +42,13 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 
 Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch. Policy bits travel with the dual-copy recover path used for that plant.
 
-### Dual-copy recovery invariant
+### Dual-copy freshness
 
-Among copies that validate magic and CRC, recover the floor and policy from the copy whose epoch is newer under the ring wrap rule in ringlog.md. Updates program the mirror first, then the primary, with the next epoch equal to one more than the newest valid epoch under that same rule, wrapping in 16 bits and skipping zero. An `after_mirror` tear leaves only the mirror updated.
+Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch. An update must advance from that same wrap-newest epoch, program the mirror before the primary, wrap in 16 bits, and skip zero. An `after_mirror` tear leaves only the mirror updated. Integer magnitude alone is not a valid freshness rule under wrap.
 
-### Promote invariant
+### Promote freshness stamp
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The stamped tip equals the shared ring tip from the Write cursor rules in ringlog.md at promote time.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must equal the wrap-coherent ring tip at promote time so equal-security banks still rank under the wrap rule after reboot.
 
 ### Boot selection invariant
 

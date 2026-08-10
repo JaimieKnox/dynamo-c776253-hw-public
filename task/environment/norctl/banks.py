@@ -154,10 +154,10 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
         next_epoch = 1
-    _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
+    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
     if tear == "after_mirror":
         return
-    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
+    _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
 
 
 def read_meta(flash: Flash) -> int:
@@ -180,7 +180,7 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
         if info.state not in (ACTIVE, CANDIDATE):
             continue
         if policy & REQUIRE_NEWER_SECURITY:
-            if info.security_version < floor:
+            if info.security_version <= floor:
                 continue
         else:
             if info.security_version < floor:
@@ -204,11 +204,6 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             best_name, best = name, info
             continue
         if _gen_newer(info.generation, best.generation):
-            continue
-        if info.image_version > best.image_version:
-            best_name, best = name, info
-            continue
-        if info.image_version < best.image_version:
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info

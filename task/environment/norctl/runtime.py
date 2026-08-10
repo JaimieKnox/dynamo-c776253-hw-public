@@ -76,10 +76,7 @@ class Runtime:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
-        from .banks import _read_meta_full
-
-        _floor, policy = _read_meta_full(self.flash)
-        payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
+        payload = _pack_meta(int(floor) & 0xFFFF, epoch, 0)
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)

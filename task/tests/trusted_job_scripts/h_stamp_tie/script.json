@@ -1,40 +1,49 @@
 {
-  "case_id": "h_req_floor",
-  "sec_floor": 2,
+  "case_id": "h_stamp_tie",
+  "sec_floor": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 1
+      "policy": 2
     },
     {
       "op": "force_seq",
-      "seq": 10
+      "seq": 80
     },
     {
       "op": "put",
-      "key": "a",
+      "key": "p",
+      "value": "1"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65450
+    },
+    {
+      "op": "put",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 2,
-      "image_version": 1
+      "sec_rev": 3,
+      "image_version": 7
     },
     {
       "op": "force_seq",
-      "seq": 11
+      "seq": 8
     },
     {
       "op": "put",
-      "key": "b",
+      "key": "r",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
       "sec_rev": 3,
-      "image_version": 1,
+      "image_version": 7,
       "tear": "after_candidate"
     }
   ]

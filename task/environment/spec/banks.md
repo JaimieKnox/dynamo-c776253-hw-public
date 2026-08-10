@@ -40,7 +40,7 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Floor and policy travel together on ordinary dual-copy meta updates. The force_meta_epoch case op plants floor and epoch on both meta copies while keeping the policy word recovered from the dual-copy view at plant time.
+Floor and policy travel together on ordinary dual-copy meta updates. The force_meta_epoch case op plants floor and epoch on both meta copies as one coherent floor, epoch, and policy record. After the plant, recovered policy matches the policy that was in force before the plant.
 
 ### Dual-copy freshness
 

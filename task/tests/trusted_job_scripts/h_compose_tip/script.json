@@ -8,41 +8,48 @@
     },
     {
       "op": "force_seq",
-      "seq": 100
+      "seq": 500
     },
     {
       "op": "put",
-      "key": "a",
+      "key": "w",
       "value": "1"
     },
     {
       "op": "force_seq",
-      "seq": 65500
+      "seq": 65200
     },
     {
       "op": "put",
-      "key": "b",
+      "key": "x",
       "value": "2"
+    },
+    {
+      "op": "reboot"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 3,
+      "sec_rev": 4,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 40
+      "seq": 15
+    },
+    {
+      "op": "delete",
+      "key": "w"
     },
     {
       "op": "put",
-      "key": "c",
-      "value": "3"
+      "key": "z",
+      "value": "9"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 3,
+      "sec_rev": 4,
       "image_version": 1,
       "tear": "after_candidate"
     }

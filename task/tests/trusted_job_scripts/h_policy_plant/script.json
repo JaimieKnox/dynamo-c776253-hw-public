@@ -1,14 +1,19 @@
 {
-  "case_id": "h_image_tie",
+  "case_id": "h_policy_plant",
   "sec_floor": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 2
+      "policy": 3
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 1,
+      "epoch": 10
     },
     {
       "op": "force_seq",
-      "seq": 20
+      "seq": 5
     },
     {
       "op": "put",
@@ -18,14 +23,23 @@
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 3,
+      "sec_rev": 2,
       "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 6
+    },
+    {
+      "op": "put",
+      "key": "b",
+      "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 3,
-      "image_version": 99,
+      "sec_rev": 2,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

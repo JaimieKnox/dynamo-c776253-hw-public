@@ -51,7 +51,7 @@ Closed set of `op` values:
 - `delete` with `key`, optional `tear`
 - `promote` with `bank` (`X` or `Y`), `sec_rev`, `image_version`, optional `tear`
 - `force_seq` with `seq` (sets the ring next sequence counter)
-- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch and floor under a recover-consistent dual-copy meta view for floor, epoch, and policy)
+- `force_meta_epoch` with `floor` and `epoch` (plants both meta copies at a chosen epoch and floor while keeping the policy word recovered from the dual-copy view at plant time)
 - `pad_puts` with `count` and optional `val_len` (writes disposable keys to pressure compaction)
 - `raise_floor` with `floor` int and optional `tear`
 - `set_policy` with `policy` int and optional `tear`

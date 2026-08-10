@@ -24,6 +24,7 @@ class Runtime:
         self.flash = Flash()
         write_meta(self.flash, sec_floor)
         self.ring = RingLog(self.flash)
+        self._policy = 0
 
     def _compact(self) -> None:
         compact(self.flash, self.ring)
@@ -60,16 +61,13 @@ class Runtime:
         image_version: int,
         tear: Optional[str] = None,
     ) -> None:
-        stamp = 0
-        for rec in self.ring.iter_records():
-            if rec.complete:
-                stamp = rec.seq
+        tip = self.ring.tip_seq()
         promote(
             self.flash,
             bank,
             sec_rev,
             image_version,
-            generation=stamp,
+            generation=tip,
             tear=tear,
         )
 
@@ -84,12 +82,14 @@ class Runtime:
         for page in (META_PAGE, META_MIRROR_PAGE):
             self.flash.erase_page(page)
             self.flash.program(page * PAGE_SIZE, payload)
+        self._policy = 0
 
     def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, floor, tear=tear)
 
     def set_policy(self, policy: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, read_meta(self.flash), policy=int(policy), tear=tear)
+        self._policy = int(policy)
 
     def apply_ops(self, ops: List[Dict[str, Any]]) -> None:
         for op in ops:
@@ -125,8 +125,11 @@ class Runtime:
     def recover(self, case_id: str) -> Dict[str, Any]:
         ring = RingLog(self.flash)
         nvs = recover_nvs(ring)
-        boot, sec, floor = select_boot_bank(self.flash)
-        tip = ring.tip_seq()
+        boot, sec, floor = select_boot_bank(self.flash, policy_override=self._policy)
+        tip = 0
+        for rec in ring.iter_records():
+            if rec.complete:
+                tip = rec.seq
         return {
             "case_id": case_id,
             "nvs": nvs,

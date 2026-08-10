@@ -1,0 +1,46 @@
+{
+  "case_id": "h_policy_poison",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 3
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 40
+    },
+    {
+      "op": "force_seq",
+      "seq": 10
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 11
+    },
+    {
+      "op": "put",
+      "key": "m",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 3,
+      "image_version": 1,
+      "tear": "after_candidate"
+    }
+  ]
+}

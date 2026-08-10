@@ -44,7 +44,7 @@ Floor and policy travel together on ordinary dual-copy meta updates. The force_m
 
 ### Dual-copy freshness
 
-Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. Updates advance freshness under that rule, keep both copies coherent when no tear is requested, and honor `after_mirror` tears that interrupt the dual-copy update mid-flight.
+Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. Meta updates advance from the wrap-newest epoch among those valid copies, keep both copies coherent when no tear is requested, and honor `after_mirror` tears that interrupt the dual-copy update mid-flight.
 
 ### Promote freshness stamp
 
@@ -52,4 +52,4 @@ Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when 
 
 ### Boot selection invariant
 
-Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational metadata on the bank page.
+Boot selection uses floor and policy from the dual-copy meta recovery view at recovery time. Eligible banks are valid `ACTIVE` or `CANDIDATE` pages that meet the recovered floor under the recovered policy: with `REQUIRE_NEWER_SECURITY` clear, `sec_rev >= floor`. With that bit set, `sec_rev > floor`. When `IGNORE_ACTIVE_PREF` is clear and an eligible `ACTIVE` exists, ranking considers only those `ACTIVE` banks. Otherwise ranking considers every eligible bank. Ranking keys are security revision, tip stamp freshness under the ring wrap rule, and bank id (lower wins). Image version is informational metadata on the bank page.

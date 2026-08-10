@@ -1,5 +1,5 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_meta_tear",
   "sec_floor": 1,
   "ops": [
     {
@@ -18,30 +18,11 @@
     },
     {
       "op": "force_seq",
-      "seq": 100
+      "seq": 8
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v2"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65530
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "pad_puts",
-      "count": 113,
-      "val_len": 40
-    },
-    {
-      "op": "put",
-      "key": "w1",
+      "key": "t",
       "value": "1"
     },
     {
@@ -52,22 +33,19 @@
     },
     {
       "op": "force_seq",
-      "seq": 50
+      "seq": 9
     },
     {
       "op": "put",
-      "key": "w2",
+      "key": "u",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
       "sec_rev": 6,
-      "image_version": 80,
+      "image_version": 1,
       "tear": "after_candidate"
-    },
-    {
-      "op": "reboot"
     }
   ]
 }

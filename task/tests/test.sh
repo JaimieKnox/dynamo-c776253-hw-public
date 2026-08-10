@@ -4,7 +4,7 @@
 # Phase A seals expectations from the independent reference model and removes it.
 # Phase B grades agent outputs with no oracle import.
 set -u
-mkdir -p /logs/verifier
+mkdir -p /logs/verifie
 # Keep agent-writable /app off verifier sys.path (no Dockerfile .pth, no PYTHONPATH=/app).
 unset PYTHONPATH
 export PYTHONPATH=/tests

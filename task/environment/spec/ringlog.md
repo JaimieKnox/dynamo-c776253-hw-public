@@ -43,7 +43,7 @@ After any tear, reboot, or reclaim rewrite, tip reporting and write-cursor place
 
 ## Tip and allocation coherence
 
-Reported tip and the next allocated sequence stay mutually consistent across reboot, reclaim rewrite, and `force_seq` plants. Tip is the wrap-newest complete sequence, or `0` when none. The next assigned sequence is one more than that tip in 16 bits, skipping zero.
+Reported tip_seq in recovery outputs is the wrap-newest complete sequence under the half-ring rule, or `0` when none. The next assigned sequence is one more than that tip in 16 bits, skipping zero. Tip reporting and append allocation stay mutually consistent across reboot, reclaim rewrite, and `force_seq` plants.
 
 ## Sequence ordering
 

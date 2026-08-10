@@ -1,0 +1,27 @@
+{
+  "case_id": "h_tip_flash",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "a",
+      "value": "1"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65000
+    },
+    {
+      "op": "put",
+      "key": "b",
+      "value": "2"
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

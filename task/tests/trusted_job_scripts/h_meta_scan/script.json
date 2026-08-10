@@ -1,0 +1,35 @@
+{
+  "case_id": "h_meta_scan",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 2
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 1,
+      "epoch": 20
+    },
+    {
+      "op": "raise_floor",
+      "floor": 4,
+      "tear": "after_mirror"
+    },
+    {
+      "op": "force_seq",
+      "seq": 5
+    },
+    {
+      "op": "put",
+      "key": "z",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 4,
+      "image_version": 1
+    }
+  ]
+}

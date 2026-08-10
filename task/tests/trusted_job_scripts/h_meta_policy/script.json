@@ -1,5 +1,5 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_meta_policy",
   "sec_floor": 1,
   "ops": [
     {
@@ -9,65 +9,43 @@
     {
       "op": "force_meta_epoch",
       "floor": 2,
-      "epoch": 65534
+      "epoch": 40
     },
     {
       "op": "raise_floor",
-      "floor": 5,
+      "floor": 4,
       "tear": "after_mirror"
     },
     {
       "op": "force_seq",
-      "seq": 100
+      "seq": 12
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v2"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65530
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "pad_puts",
-      "count": 113,
-      "val_len": 40
-    },
-    {
-      "op": "put",
-      "key": "w1",
+      "key": "k",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 50
+      "seq": 13
     },
     {
       "op": "put",
-      "key": "w2",
+      "key": "m",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 6,
-      "image_version": 80,
+      "sec_rev": 5,
+      "image_version": 1,
       "tear": "after_candidate"
-    },
-    {
-      "op": "reboot"
     }
   ]
 }

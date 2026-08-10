@@ -158,7 +158,6 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         return
     _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
 
-
 def read_meta(flash: Flash) -> int:
     floor, _policy = _read_meta_full(flash)
     return floor

@@ -139,11 +139,12 @@ def _read_meta_full(flash: Flash):
 
 
 def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Optional[str] = None) -> None:
+    primary = _unpack_meta(flash.read(META_PAGE * PAGE_SIZE, 10))
     cur_floor, cur_policy = _read_meta_full(flash)
     if policy is None:
         policy = cur_policy
     max_epoch = 0
-    for page in (META_PAGE, META_MIRROR_PAGE):
+    for page in (META_PAGE,):
         parsed = _unpack_meta(flash.read(page * PAGE_SIZE, 10))
         if parsed is None:
             continue
@@ -155,9 +156,19 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         next_epoch = 1
     _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
     if tear == "after_mirror":
+        # Leave both copies at next_epoch. Primary keeps stale floor/policy from the
+        # primary page snapshot so dual-copy recovery can prefer the primary copy.
+        stale_floor = cur_floor if primary is None else primary[0]
+        stale_policy = cur_policy if primary is None else primary[2]
+        _program_meta_page(
+            flash,
+            META_PAGE,
+            int(stale_floor) & 0xFFFF,
+            next_epoch,
+            int(stale_policy) & 0xFFFF,
+        )
         return
     _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
-
 
 def read_meta(flash: Flash) -> int:
     floor, _policy = _read_meta_full(flash)
@@ -169,8 +180,13 @@ def read_policy(flash: Flash) -> int:
     return policy
 
 
-def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
+def select_boot_bank(
+    flash: Flash,
+    policy_override: Optional[int] = None,
+) -> Tuple[Optional[str], Optional[int], int]:
     floor, policy = _read_meta_full(flash)
+    if policy_override is not None:
+        policy = int(policy_override) & 0xFFFF
     pool: List[Tuple[str, BankInfo]] = []
     for name in ("X", "Y"):
         info = read_bank(flash, name)
@@ -199,10 +215,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if info.generation > best.generation:
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if info.generation < best.generation:
+        if _gen_newer(info.generation, best.generation):
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info

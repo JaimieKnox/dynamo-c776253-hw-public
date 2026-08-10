@@ -4,51 +4,21 @@
   "ops": [
     {
       "op": "set_policy",
-      "policy": 2
+      "policy": 3
     },
     {
-      "op": "force_seq",
-      "seq": 65500
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 65534
     },
     {
-      "op": "put",
-      "key": "early",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80
+      "op": "raise_floor",
+      "floor": 5,
+      "tear": "after_mirror"
     },
     {
       "op": "force_seq",
       "seq": 100
-    },
-    {
-      "op": "put",
-      "key": "late",
-      "value": "1"
-    },
-    {
-      "op": "force_seq",
-      "seq": 65000
-    },
-    {
-      "op": "put",
-      "key": "shadow",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "bank": "X",
-      "sec_rev": 5,
-      "image_version": 1,
-      "tear": "after_candidate"
-    },
-    {
-      "op": "force_seq",
-      "seq": 120
     },
     {
       "op": "put",
@@ -73,6 +43,28 @@
       "op": "put",
       "key": "w1",
       "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 5,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 50
+    },
+    {
+      "op": "put",
+      "key": "w2",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 6,
+      "image_version": 80,
+      "tear": "after_candidate"
     },
     {
       "op": "reboot"

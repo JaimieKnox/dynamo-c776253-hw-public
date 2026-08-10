@@ -4,7 +4,17 @@
   "ops": [
     {
       "op": "set_policy",
-      "policy": 2
+      "policy": 3
+    },
+    {
+      "op": "force_meta_epoch",
+      "floor": 2,
+      "epoch": 65534
+    },
+    {
+      "op": "raise_floor",
+      "floor": 4,
+      "tear": "after_mirror"
     },
     {
       "op": "force_seq",
@@ -25,20 +35,32 @@
       "value": "v1"
     },
     {
+      "op": "put",
+      "key": "hole",
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "tear": "after_payload"
+    },
+    {
+      "op": "reboot"
+    },
+    {
       "op": "pad_puts",
-      "count": 113,
+      "count": 110,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "q",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 1
+    },
+    {
+      "op": "reboot"
     },
     {
       "op": "force_seq",
@@ -46,7 +68,7 @@
     },
     {
       "op": "put",
-      "key": "r",
+      "key": "q",
       "value": "1"
     },
     {

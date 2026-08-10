@@ -40,7 +40,7 @@ For each case directory under `/app/cases/<case_id>/script.json` the runner appl
 - `nvs` is the ring-log fold result after all ops
 - `boot_bank` is `"X"`, `"Y"`, or `null` under the boot selection invariant
 - `sec_rev` comes from the selected bank, or `null`
-- `tip_seq` is the modular complete-record tip, or `0` if none
+- the wrap-coherent tip is the modular complete-record tip, or `0` if none
 - `sec_floor` is the recovered meta floor
 
 ## Case operations

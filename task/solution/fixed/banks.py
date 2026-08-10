@@ -236,3 +236,4 @@ def promote(
         which,
         BankInfo(ACTIVE, sid, security_version, generation, image_version, True),
     )
+

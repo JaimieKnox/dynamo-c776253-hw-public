@@ -29,6 +29,7 @@ class Runtime:
         compact(self.flash, self.ring)
         self.ring._rescan()
 
+
     def put(self, key: str, value: str, tear: Optional[str] = None) -> None:
         self.ring.append(
             key.encode("utf-8"),

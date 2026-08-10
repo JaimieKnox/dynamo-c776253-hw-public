@@ -48,7 +48,7 @@ Among CRC-valid meta copies, recovered floor and policy come from the wrap-newes
 
 ### Promote freshness stamp
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must be wrap-coherent with ring freshness at promote time so equal-security banks still rank correctly after reboot.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. Promote-time tip freshness must remain wrap-coherent with the sealed ring so equal-security banks still rank correctly after reboot.
 
 ### Boot selection invariant
 

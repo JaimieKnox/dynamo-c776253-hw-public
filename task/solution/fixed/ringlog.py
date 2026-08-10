@@ -1,4 +1,4 @@
-"""NOR ring log with two-phase sealed records."""
+"""Sealed NOR ring log (corrected)."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 {
-  "case_id": "h_cursor_seal",
+  "case_id": "h_flash_stamp",
   "sec_floor": 1,
   "ops": [
     {
@@ -12,31 +12,17 @@
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v2"
+      "key": "a",
+      "value": "1"
     },
     {
       "op": "force_seq",
-      "seq": 65530
+      "seq": 65500
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "put",
-      "key": "torn",
-      "value": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-      "tear": "after_payload"
-    },
-    {
-      "op": "reboot"
-    },
-    {
-      "op": "put",
-      "key": "n",
-      "value": "1"
+      "key": "b",
+      "value": "2"
     },
     {
       "op": "promote",
@@ -45,12 +31,13 @@
       "image_version": 1
     },
     {
-      "op": "reboot"
+      "op": "force_seq",
+      "seq": 40
     },
     {
       "op": "put",
-      "key": "m",
-      "value": "1"
+      "key": "c",
+      "value": "3"
     },
     {
       "op": "promote",

@@ -40,15 +40,15 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch. Policy bits travel with the dual-copy recover path used for that plant.
+Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch while the policy word recovered from flash remains unchanged on both planted copies.
 
 ### Dual-copy freshness
 
-Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch. An update must advance from that same wrap-newest epoch, program the mirror before the primary, wrap in 16 bits, and skip zero. An `after_mirror` tear leaves only the mirror updated. Integer magnitude alone is not a valid freshness rule under wrap.
+Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the ring half-ring rule. An update must advance from that same wrap-newest epoch, program the mirror before the primary, wrap in 16 bits, and skip zero. An `after_mirror` tear leaves only the mirror updated. The same half-ring rule applies on both recover and update paths.
 
 ### Promote freshness stamp
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must equal the wrap-coherent ring tip at promote time so equal-security banks still rank under the wrap rule after reboot.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must equal the modular complete-record tip (`tip_seq`) at promote time so equal-security banks still rank under the wrap rule after reboot.
 
 ### Boot selection invariant
 

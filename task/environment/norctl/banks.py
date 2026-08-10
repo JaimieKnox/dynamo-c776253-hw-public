@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 
 from .crc16 import crc16_ccitt
 from .flash_hal import META_MIRROR_PAGE, META_PAGE, PAGE_SIZE, BANK_X_PAGE, BANK_Y_PAGE, Flash
+from .ringlog import RingLog
 
 MAGIC_SLOT = 0xBEEF
 MAGIC_META = 0xCAFE
@@ -131,7 +132,7 @@ def _read_meta_full(flash: Flash):
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or _gen_newer(best[0], epoch):
+        if best is None or epoch > best[0]:
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0
@@ -148,7 +149,7 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
         if parsed is None:
             continue
         epoch = parsed[1]
-        if max_epoch == 0 or _gen_newer(max_epoch, epoch):
+        if max_epoch == 0 or epoch > max_epoch:
             max_epoch = epoch
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
@@ -199,10 +200,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
             continue
         if info.security_version < best.security_version:
             continue
-        if info.generation > best.generation:
+        if _gen_newer(best.generation, info.generation):
             best_name, best = name, info
             continue
-        if info.generation < best.generation:
+        if _gen_newer(info.generation, best.generation):
             continue
         if info.slot_id < best.slot_id:
             best_name, best = name, info
@@ -217,6 +218,11 @@ def promote(
     generation: int,
     tear: Optional[str] = None,
 ) -> None:
+    stamp = 0
+    for rec in RingLog(flash).iter_records():
+        if rec.complete:
+            stamp = rec.seq
+    generation = stamp
     other = "Y" if which == "X" else "X"
     sid = BANK_ID[which]
     cand = BankInfo(CANDIDATE, sid, security_version, generation, image_version, True)

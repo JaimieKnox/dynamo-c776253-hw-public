@@ -157,7 +157,6 @@ class RingLog:
         while True:
             if self.write_page >= RING_PAGES:
                 reclaim_cb()
-                self._rescan()
                 if self.write_page >= RING_PAGES:
                     raise RuntimeError("ring log full after compact")
                 continue
@@ -166,7 +165,6 @@ class RingLog:
             nxt = self.write_page + 1
             if nxt >= RING_PAGES:
                 reclaim_cb()
-                self._rescan()
                 continue
             self.write_page = nxt
             self.write_off = 0

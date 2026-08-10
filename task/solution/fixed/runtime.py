@@ -12,7 +12,6 @@ from .nvs import recover_nvs
 from .compact import compact
 from .banks import (
     _pack_meta,
-    _read_meta_full,
     promote,
     read_meta,
     select_boot_bank,
@@ -75,6 +74,8 @@ class Runtime:
         epoch = epoch & 0xFFFF
         if epoch == 0:
             epoch = 1
+        from .banks import _read_meta_full
+
         _floor, policy = _read_meta_full(self.flash)
         payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
         for page in (META_PAGE, META_MIRROR_PAGE):

@@ -51,4 +51,4 @@ Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction f
 
 ## NVS fold
 
-Among complete records for each key, keep the wrap-newest value. A wrap-newer tombstone removes the key. Flash-order last-write-wins is not sufficient when sequences wrap. Deletes must take effect even when compaction never runs.
+Among complete records for each key, keep the wrap-newest value under the half-ring rule above. A wrap-newer tombstone removes the key. Deletes must take effect even when compaction never runs.

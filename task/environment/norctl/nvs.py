@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from .ringlog import TOMBSTONE, RingLog
+from .ringlog import TOMBSTONE, RingLog, newer_seq
 
 
 def recover_nvs(ring: RingLog) -> Dict[str, str]:
@@ -14,7 +14,7 @@ def recover_nvs(ring: RingLog) -> Dict[str, str]:
         if not rec.complete:
             continue
         prev = state.get(rec.key)
-        if prev is not None and rec.seq <= prev[0]:
+        if prev is not None and not newer_seq(prev[0], rec.seq):
             continue
         if rec.flags & TOMBSTONE:
             state[rec.key] = (rec.seq, None)

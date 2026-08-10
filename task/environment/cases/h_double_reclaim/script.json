@@ -4,62 +4,42 @@
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
-      "op": "force_seq",
-      "seq": 65500
+      "policy": 2
     },
     {
       "op": "put",
       "key": "keep",
-      "value": "a"
+      "value": "v1"
     },
     {
       "op": "pad_puts",
-      "count": 120,
+      "count": 112,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "b"
-    },
-    {
-      "op": "force_seq",
-      "seq": 200
+      "key": "fill",
+      "value": "x"
     },
     {
       "op": "put",
-      "key": "mid",
-      "value": "m"
+      "key": "keep",
+      "value": "v2"
     },
     {
       "op": "pad_puts",
-      "count": 120,
+      "count": 112,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "c"
-    },
-    {
-      "op": "reboot"
+      "key": "fill2",
+      "value": "y"
     },
     {
       "op": "put",
-      "key": "z",
-      "value": "1"
+      "key": "keep",
+      "value": "v3"
     },
     {
       "op": "promote",
@@ -68,18 +48,19 @@
       "image_version": 1
     },
     {
-      "op": "reboot"
+      "op": "force_seq",
+      "seq": 50
     },
     {
       "op": "put",
-      "key": "y",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
       "sec_rev": 4,
-      "image_version": 9,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

@@ -67,6 +67,10 @@
       "op": "reboot"
     },
     {
+      "op": "force_seq",
+      "seq": 50
+    },
+    {
       "op": "put",
       "key": "q",
       "value": "1"

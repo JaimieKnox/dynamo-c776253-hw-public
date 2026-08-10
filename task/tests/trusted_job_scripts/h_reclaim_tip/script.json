@@ -7,8 +7,19 @@
       "policy": 2
     },
     {
-      "op": "force_seq",
-      "seq": 100
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 112,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "fill",
+      "value": "x"
     },
     {
       "op": "put",
@@ -16,18 +27,14 @@
       "value": "v2"
     },
     {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 3,
+      "image_version": 1
+    },
+    {
       "op": "force_seq",
-      "seq": 65530
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "pad_puts",
-      "count": 113,
-      "val_len": 40
+      "seq": 65500
     },
     {
       "op": "put",
@@ -36,23 +43,9 @@
     },
     {
       "op": "promote",
-      "bank": "X",
-      "sec_rev": 4,
-      "image_version": 1
-    },
-    {
-      "op": "reboot"
-    },
-    {
-      "op": "put",
-      "key": "q",
-      "value": "1"
-    },
-    {
-      "op": "promote",
       "bank": "Y",
-      "sec_rev": 4,
-      "image_version": 80,
+      "sec_rev": 3,
+      "image_version": 1,
       "tear": "after_candidate"
     }
   ]

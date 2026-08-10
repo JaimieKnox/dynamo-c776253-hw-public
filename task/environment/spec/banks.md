@@ -8,7 +8,7 @@
 | state | u8 | see states |
 | bank_id | u8 | `0` for X, `1` for Y |
 | sec_rev | u16 | |
-| tip_stamp | u16 | ring tip at promote time |
+| tip_stamp | u16 | freshness stamp captured at promote time |
 | image_version | u32 | informational build stamp |
 | crc16 | u16 | CRC16-CCITT over the twelve bytes before `crc16` |
 
@@ -40,15 +40,15 @@ Primary meta lives on page 30. Mirror meta lives on page 31.
 | 0 | `0x0001` | `REQUIRE_NEWER_SECURITY` |
 | 1 | `0x0002` | `IGNORE_ACTIVE_PREF` |
 
-Policy travels with the floor on ordinary dual-copy meta updates. The force_meta_epoch case op replaces only floor and epoch while the policy word recovered from flash remains unchanged on both planted copies.
+Floor and policy travel together on ordinary dual-copy meta updates. A `force_meta_epoch` plant updates floor and epoch on both copies while leaving the accompanying policy word consistent with the dual-copy recover view of the device at plant time.
 
 ### Dual-copy freshness
 
-Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the ring half-ring rule. An update must advance from that same wrap-newest epoch, program the mirror before the primary, wrap in 16 bits, and skip zero. An `after_mirror` tear leaves only the mirror updated. The same half-ring rule applies on both recover and update paths.
+Among CRC-valid meta copies, recovered floor and policy come from the wrap-newest epoch under the same half-ring rule as ring sequences. An update advances from that wrap-newest epoch, programs the mirror before the primary, wraps in 16 bits, and skips zero. An `after_mirror` tear leaves only the mirror updated.
 
 ### Promote freshness stamp
 
-Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp must equal the modular complete-record tip (`tip_seq`) at promote time so equal-security banks still rank under the wrap rule after reboot.
+Promoting a bank writes `CANDIDATE`, optionally invalidates the other bank when it is `ACTIVE`, then writes `ACTIVE`, unless a promote tear stops early. The tip stamp captures promote-time ring freshness under the wrap rule so equal-security banks still rank correctly after reboot.
 
 ### Boot selection invariant
 

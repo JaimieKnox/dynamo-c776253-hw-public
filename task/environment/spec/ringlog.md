@@ -43,11 +43,11 @@ After any tear, reboot, or reclaim rewrite, the next sealed append must land in 
 
 ## Tip and allocation coherence
 
-`tip_seq` reports the wrap-newest complete sequence (or `0` when none). Append allocation after reboot, reclaim, or `force_seq` stays coherent with that same tip: the next assigned sequence is one more than the wrap tip in 16 bits, skipping zero. Tip reporting and later appends must not diverge under wrap.
+Reported tip and the next allocated sequence stay mutually consistent across reboot, reclaim rewrite, and `force_seq` plants. Tip is the wrap-newest complete sequence, or `0` when none. The next assigned sequence is one more than that tip in 16 bits, skipping zero.
 
 ## Sequence ordering
 
-Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, the ring tip used to derive append allocation, and output `tip_seq`) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.
+Sequences are 16-bit and wrap. Every consumer of "newer" (NVS fold, compaction fold, boot tip ties, meta epoch selection, tip reporting, and append allocation derived from tip) must use the same half-ring forward window on the 16-bit counter: sequence `b` is newer than sequence `a` only when the forward distance `((b - a) & 0xFFFF)` lies in the inclusive range `1` through `32767`. When that forward distance is exactly `32768`, neither direction is newer under this window.
 
 ## NVS fold
 

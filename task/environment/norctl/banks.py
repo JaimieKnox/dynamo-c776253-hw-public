@@ -154,10 +154,10 @@ def write_meta(flash: Flash, floor: int, policy: Optional[int] = None, tear: Opt
     next_epoch = (max_epoch + 1) & 0xFFFF
     if next_epoch == 0:
         next_epoch = 1
-    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
+    _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
     if tear == "after_mirror":
         return
-    _program_meta_page(flash, META_PAGE, floor, next_epoch, policy & 0xFFFF)
+    _program_meta_page(flash, META_MIRROR_PAGE, floor, next_epoch, policy & 0xFFFF)
 
 
 def read_meta(flash: Flash) -> int:

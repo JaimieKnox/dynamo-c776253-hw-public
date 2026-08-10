@@ -1,4 +1,4 @@
-"""Case orchestration: apply case scripts and emit state JSON (corrected)."""
+"""Case orchestration: apply case scripts and emit state JSON. (corrected)"""
 
 from __future__ import annotations
 

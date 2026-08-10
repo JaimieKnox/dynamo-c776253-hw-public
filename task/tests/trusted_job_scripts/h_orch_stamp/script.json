@@ -1,5 +1,5 @@
 {
-  "case_id": "h_gen_meta",
+  "case_id": "h_orch_stamp",
   "sec_floor": 1,
   "ops": [
     {
@@ -7,26 +7,12 @@
       "policy": 2
     },
     {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 1
-    },
-    {
-      "op": "raise_floor",
-      "floor": 2,
-      "tear": "after_mirror"
-    },
-    {
       "op": "force_seq",
-      "seq": 50000
+      "seq": 200
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "a",
       "value": "1"
     },
     {
@@ -37,12 +23,12 @@
     },
     {
       "op": "force_seq",
-      "seq": 200
+      "seq": 65500
     },
     {
       "op": "put",
-      "key": "q",
-      "value": "1"
+      "key": "b",
+      "value": "2"
     },
     {
       "op": "promote",

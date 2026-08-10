@@ -1,46 +1,44 @@
 {
-  "case_id": "h_policy_plant",
+  "case_id": "h_boot_rank",
   "sec_floor": 1,
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 10
+      "policy": 2
     },
     {
       "op": "force_seq",
-      "seq": 5
+      "seq": 300
     },
     {
       "op": "put",
-      "key": "a",
+      "key": "p",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 2,
-      "image_version": 1
+      "sec_rev": 4,
+      "image_version": 2
     },
     {
       "op": "force_seq",
-      "seq": 6
+      "seq": 65000
     },
     {
       "op": "put",
-      "key": "b",
+      "key": "q",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 2,
-      "image_version": 1,
+      "sec_rev": 4,
+      "image_version": 9,
       "tear": "after_candidate"
+    },
+    {
+      "op": "reboot"
     }
   ]
 }

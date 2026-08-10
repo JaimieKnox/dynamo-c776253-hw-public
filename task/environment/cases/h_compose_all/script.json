@@ -1,0 +1,81 @@
+{
+  "case_id": "h_compose_all",
+  "sec_floor": 1,
+  "ops": [
+    {
+      "op": "set_policy",
+      "policy": 2
+    },
+    {
+      "op": "force_seq",
+      "seq": 65500
+    },
+    {
+      "op": "put",
+      "key": "early",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 5,
+      "image_version": 80
+    },
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "late",
+      "value": "1"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65000
+    },
+    {
+      "op": "put",
+      "key": "shadow",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 5,
+      "image_version": 1,
+      "tear": "after_candidate"
+    },
+    {
+      "op": "force_seq",
+      "seq": 120
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65530
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 113,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "w1",
+      "value": "1"
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

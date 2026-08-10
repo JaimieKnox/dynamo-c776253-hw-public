@@ -1,4 +1,4 @@
-"""NVS recovery fold that respects tombstones (corrected)."""
+"""NVS recovery fold that respects tombstones."""
 
 from __future__ import annotations
 

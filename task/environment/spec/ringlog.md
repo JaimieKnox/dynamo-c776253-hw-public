@@ -39,7 +39,7 @@ A record is durable only once the two-phase commit has fully finished for that r
 
 ## Crash-safe append placement
 
-After any tear, reboot, or reclaim rewrite, the next sealed append must land in erased flash beyond every already-programmed well-formed header region. Later appends stay clear of any torn header that still occupies flash. Durable completeness still gates which records contribute to tip and NVS fold.
+After any tear, reboot, or reclaim rewrite, tip reporting and write-cursor placement must stay coherent with crash-safe append placement: the next sealed append lands in erased flash beyond every already-programmed well-formed header region. Later appends stay clear of any torn header that still occupies flash. Durable completeness still gates which records contribute to tip and NVS fold.
 
 ## Tip and allocation coherence
 

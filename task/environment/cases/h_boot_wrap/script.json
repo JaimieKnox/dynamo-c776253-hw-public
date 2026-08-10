@@ -1,5 +1,5 @@
 {
-  "case_id": "h_reclaim_tip",
+  "case_id": "h_boot_wrap",
   "sec_floor": 1,
   "ops": [
     {
@@ -7,43 +7,32 @@
       "policy": 2
     },
     {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
-    },
-    {
-      "op": "pad_puts",
-      "count": 112,
-      "val_len": 40
-    },
-    {
-      "op": "put",
-      "key": "fill",
-      "value": "x"
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v2"
-    },
-    {
-      "op": "promote",
-      "bank": "X",
-      "sec_rev": 3,
-      "image_version": 1
-    },
-    {
       "op": "force_seq",
       "seq": 65500
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "early",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "Y",
+      "sec_rev": 3,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "late",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
       "sec_rev": 3,
       "image_version": 1,
       "tear": "after_candidate"

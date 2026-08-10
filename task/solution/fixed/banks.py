@@ -1,4 +1,4 @@
-"""X/Y OTA bank metadata and boot selection (corrected)."""
+"""X/Y OTA bank metadata and boot selection. (corrected)"""
 
 from __future__ import annotations
 

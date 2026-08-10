@@ -16,7 +16,8 @@ def fold_live(ring: RingLog) -> Dict[bytes, Tuple[bytes, int]]:
         if not rec.complete:
             continue
         prev = state.get(rec.key)
-        if prev is not None and not newer_seq(prev[1], rec.seq):
+        prev_seq = prev[1] if prev is not None else None
+        if prev_seq is not None and not (rec.seq > prev_seq):
             continue
         if rec.flags & TOMBSTONE:
             state[rec.key] = (None, rec.seq)
@@ -35,9 +36,9 @@ def _live_order(a, b) -> int:
     sb = b[1][1]
     if sa == sb:
         return 0
-    if newer_seq(sa, sb):
+    if sa > sb:
         return -1
-    if newer_seq(sb, sa):
+    if sb > sa:
         return 1
     return 0
 

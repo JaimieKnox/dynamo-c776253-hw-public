@@ -4,21 +4,7 @@
   "ops": [
     {
       "op": "set_policy",
-      "policy": 3
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 2,
-      "epoch": 65534
-    },
-    {
-      "op": "raise_floor",
-      "floor": 3
-    },
-    {
-      "op": "raise_floor",
-      "floor": 4,
-      "tear": "after_mirror"
+      "policy": 2
     },
     {
       "op": "force_seq",

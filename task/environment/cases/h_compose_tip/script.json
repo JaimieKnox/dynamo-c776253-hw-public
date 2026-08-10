@@ -16,18 +16,6 @@
       "value": "1"
     },
     {
-      "op": "force_seq",
-      "seq": 65200
-    },
-    {
-      "op": "put",
-      "key": "x",
-      "value": "2"
-    },
-    {
-      "op": "reboot"
-    },
-    {
       "op": "promote",
       "bank": "X",
       "sec_rev": 4,
@@ -35,7 +23,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 15
+      "seq": 65200
     },
     {
       "op": "delete",

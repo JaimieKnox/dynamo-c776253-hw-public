@@ -43,8 +43,6 @@ Append placement resumes after the last well-formed programmed header region in 
 
 Reported `tip_seq` and append `next_seq` allocation share one ring tip: the newest complete sequence under the wrap rule below (or `0` when none). `next_seq` is one more than that tip in 16 bits, skipping zero. After `reboot`, after reclaim rewrite, and after `force_seq` plants, reporting and later appends stay on that same tip rule.
 
-Do not resume the write cursor from the last durable record alone when an incomplete programmed header sits later in flash order. Do not advance `next_seq` from the flash-order last complete sequence when that value disagrees with the wrap-rule tip used for `tip_seq`.
-
 Compaction erase and rewrite must leave append allocation coherent with the post-rewrite wrap tip. See compact.md.
 
 ## Sequence ordering

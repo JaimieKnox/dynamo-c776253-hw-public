@@ -155,8 +155,10 @@ class RingLog:
     def ensure_space(self, need: int, reclaim_cb: Callable[[], None]) -> None:
         while True:
             if self.write_page >= RING_PAGES:
+                n = self.next_seq
                 reclaim_cb()
                 self._rescan()
+                self.next_seq = n
                 if self.write_page >= RING_PAGES:
                     raise RuntimeError("ring log full after compact")
                 continue
@@ -164,8 +166,10 @@ class RingLog:
                 return
             nxt = self.write_page + 1
             if nxt >= RING_PAGES:
+                n = self.next_seq
                 reclaim_cb()
                 self._rescan()
+                self.next_seq = n
                 continue
             self.write_page = nxt
             self.write_off = 0

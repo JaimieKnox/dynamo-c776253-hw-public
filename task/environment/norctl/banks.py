@@ -131,7 +131,7 @@ def _read_meta_full(flash: Flash):
         if parsed is None:
             continue
         floor, epoch, policy = parsed
-        if best is None or epoch > best[0]:
+        if best is None or _gen_newer(best[0], epoch):
             best = (epoch, floor, policy)
     if best is None:
         return 0, 0

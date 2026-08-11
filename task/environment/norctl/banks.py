@@ -187,10 +187,10 @@ def select_boot_bank(flash: Flash) -> Tuple[Optional[str], Optional[int], int]:
     if not pool:
         return None, None, floor
     if policy & IGNORE_ACTIVE_PREF:
+        chosen = pool
+    else:
         active = [(n, i) for n, i in pool if i.state == ACTIVE]
         chosen = active if active else pool
-    else:
-        chosen = pool
     best_name, best = chosen[0]
     for name, info in chosen[1:]:
         if info.security_version > best.security_version:
@@ -222,6 +222,13 @@ def promote(
     write_bank(flash, which, cand)
     if tear == "after_candidate":
         return
+    o = read_bank(flash, other)
+    if o.valid and o.state == ACTIVE:
+        write_bank(
+            flash,
+            other,
+            BankInfo(INVALID, o.slot_id, o.security_version, o.generation, o.image_version, True),
+        )
     if tear == "after_invalidate":
         return
     write_bank(

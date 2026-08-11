@@ -45,12 +45,13 @@ def _live_order(a, b) -> int:
 def compact(flash: Flash, ring: RingLog) -> None:
     """Compact ring: erase ring pages and rewrite live records."""
     live = fold_live(ring)
-    next_seq = ring.next_seq
+    preserved_next = ring.next_seq
     for page in range(RING_PAGES):
         flash.erase_page(page)
     ring.write_page = 0
     ring.write_off = 0
-    ring.next_seq = next_seq
     items = sorted(live.items(), key=cmp_to_key(_live_order))
-    for key, (value, _seq) in items:
+    for key, (value, seq) in items:
+        ring.next_seq = seq
         ring.append(key, value, tombstone=False, tear=None, reclaim_cb=lambda: None)
+    ring.next_seq = preserved_next

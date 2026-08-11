@@ -1,0 +1,57 @@
+{
+  "case_id": "h_retain_stamp",
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 300
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v1"
+    },
+    {
+      "op": "pad_puts",
+      "count": 112,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "fill",
+      "value": "x"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65200
+    },
+    {
+      "op": "put",
+      "key": "p",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 5,
+      "image_version": 1
+    },
+    {
+      "op": "force_seq",
+      "seq": 120
+    },
+    {
+      "op": "put",
+      "key": "q",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 5,
+      "image_version": 9
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

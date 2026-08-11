@@ -1,5 +1,5 @@
 {
-  "case_id": "h_interact_long",
+  "case_id": "h_tear_reclaim",
   "ops": [
     {
       "op": "put",
@@ -10,32 +10,20 @@
       "op": "put",
       "key": "hole",
       "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_payload"
+      "tear": "after_header"
     },
     {
       "op": "reboot"
     },
     {
-      "op": "force_seq",
-      "seq": 65510
+      "op": "pad_puts",
+      "count": 112,
+      "val_len": 40
     },
     {
       "op": "put",
-      "key": "victim",
-      "value": "alive"
-    },
-    {
-      "op": "force_seq",
-      "seq": 30
-    },
-    {
-      "op": "delete",
-      "key": "victim"
-    },
-    {
-      "op": "pad_puts",
-      "count": 108,
-      "val_len": 40
+      "key": "fill",
+      "value": "x"
     },
     {
       "op": "put",
@@ -43,22 +31,14 @@
       "value": "v2"
     },
     {
-      "op": "put",
-      "key": "mark",
-      "value": "1"
-    },
-    {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 3,
       "image_version": 1
     },
     {
-      "op": "reboot"
-    },
-    {
       "op": "force_seq",
-      "seq": 500
+      "seq": 800
     },
     {
       "op": "put",
@@ -68,8 +48,8 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80
+      "sec_rev": 3,
+      "image_version": 9
     },
     {
       "op": "reboot"

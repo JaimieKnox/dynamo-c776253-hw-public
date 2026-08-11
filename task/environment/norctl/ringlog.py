@@ -85,8 +85,8 @@ class RingLog:
                 if self.record_complete(page, off, flags, key_len, val_len):
                     if tip is None or newer_seq(tip, seq):
                         tip = seq
-                end_page, end_off = page, off + total
-                saw_cursor = True
+                    end_page, end_off = page, off + total
+                    saw_cursor = True
                 off += total
         if not saw_cursor:
             self.write_page = 0

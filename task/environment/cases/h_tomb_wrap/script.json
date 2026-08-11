@@ -1,0 +1,41 @@
+{
+  "case_id": "h_tomb_wrap",
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 65500
+    },
+    {
+      "op": "put",
+      "key": "victim",
+      "value": "alive"
+    },
+    {
+      "op": "put",
+      "key": "other",
+      "value": "stay"
+    },
+    {
+      "op": "force_seq",
+      "seq": 40
+    },
+    {
+      "op": "delete",
+      "key": "victim"
+    },
+    {
+      "op": "put",
+      "key": "other",
+      "value": "stay2"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

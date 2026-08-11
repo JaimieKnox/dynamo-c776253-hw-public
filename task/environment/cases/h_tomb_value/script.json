@@ -1,0 +1,45 @@
+{
+  "case_id": "h_tomb_value",
+  "ops": [
+    {
+      "op": "force_seq",
+      "seq": 100
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "ok"
+    },
+    {
+      "op": "force_seq",
+      "seq": 65520
+    },
+    {
+      "op": "put",
+      "key": "k",
+      "value": "v2"
+    },
+    {
+      "op": "force_seq",
+      "seq": 50
+    },
+    {
+      "op": "delete",
+      "key": "k"
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "ok2"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 2,
+      "image_version": 1
+    },
+    {
+      "op": "reboot"
+    }
+  ]
+}

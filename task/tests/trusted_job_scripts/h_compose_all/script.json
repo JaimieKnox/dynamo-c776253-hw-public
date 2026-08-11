@@ -1,66 +1,61 @@
 {
   "case_id": "h_compose_all",
-  "sec_floor": 1,
   "ops": [
     {
-      "op": "set_policy",
-      "policy": 2
-    },
-    {
-      "op": "raise_floor",
-      "floor": 7
-    },
-    {
-      "op": "force_meta_epoch",
-      "floor": 1,
-      "epoch": 5
-    },
-    {
       "op": "force_seq",
-      "seq": 100
+      "seq": 65450
+    },
+    {
+      "op": "put",
+      "key": "victim",
+      "value": "alive"
     },
     {
       "op": "put",
       "key": "keep",
-      "value": "v2"
+      "value": "k0"
     },
     {
       "op": "force_seq",
-      "seq": 65530
+      "seq": 90
     },
     {
-      "op": "put",
-      "key": "keep",
-      "value": "v1"
+      "op": "delete",
+      "key": "victim"
     },
     {
       "op": "put",
       "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_payload"
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "tear": "after_header"
     },
     {
       "op": "reboot"
     },
     {
       "op": "pad_puts",
-      "count": 110,
+      "count": 105,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "p",
+      "key": "keep",
+      "value": "k1"
+    },
+    {
+      "op": "put",
+      "key": "mark",
       "value": "1"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 1
     },
     {
       "op": "force_seq",
-      "seq": 65400
+      "seq": 200
     },
     {
       "op": "put",
@@ -70,7 +65,7 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
+      "sec_rev": 4,
       "image_version": 80
     },
     {

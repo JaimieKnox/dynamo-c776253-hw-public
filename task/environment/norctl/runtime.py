@@ -79,8 +79,9 @@ class Runtime:
 
         _floor, policy = _read_meta_full(self.flash)
         payload = _pack_meta(int(floor) & 0xFFFF, epoch, policy & 0xFFFF)
-        self.flash.erase_page(META_PAGE)
-        self.flash.program(META_PAGE * PAGE_SIZE, payload)
+        for page in (META_PAGE, META_MIRROR_PAGE):
+            self.flash.erase_page(page)
+            self.flash.program(page * PAGE_SIZE, payload)
 
     def raise_floor(self, floor: int, tear: Optional[str] = None) -> None:
         write_meta(self.flash, floor, tear=tear)

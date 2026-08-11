@@ -1,6 +1,6 @@
 You are repairing embedded recovery code for a dual-bank OTA device.
 
-Code lives in `/app/norctl`. Correct behavior is defined only by `/app/spec/README.md`, `/app/spec/ringlog.md`, `/app/spec/banks.md`, and `/app/spec/compact.md`. Do not invent rules that conflict with those documents.
+Code lives in `/app/norctl`. Correct behavior is defined only by `/app/spec/README.md`, `/app/spec/ringlog.md`, `/app/spec/banks.md`, and `/app/spec/compact.md`. Follow those documents when recovery behavior is ambiguous.
 
 Sequence freshness follows the ring wrap rule in `/app/spec/ringlog.md`. Apply that same rule wherever recovery compares sequences.
 

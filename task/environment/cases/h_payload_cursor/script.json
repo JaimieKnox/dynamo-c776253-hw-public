@@ -1,10 +1,10 @@
 {
-  "case_id": "h_interact_long",
+  "case_id": "h_payload_cursor",
   "ops": [
     {
       "op": "put",
-      "key": "keep",
-      "value": "v1"
+      "key": "a",
+      "value": "1"
     },
     {
       "op": "put",
@@ -16,49 +16,29 @@
       "op": "reboot"
     },
     {
-      "op": "force_seq",
-      "seq": 65510
-    },
-    {
-      "op": "put",
-      "key": "victim",
-      "value": "alive"
-    },
-    {
-      "op": "force_seq",
-      "seq": 30
-    },
-    {
-      "op": "delete",
-      "key": "victim"
-    },
-    {
       "op": "pad_puts",
-      "count": 108,
+      "count": 110,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "v2"
+      "key": "b",
+      "value": "2"
     },
     {
       "op": "put",
-      "key": "mark",
-      "value": "1"
+      "key": "a",
+      "value": "3"
     },
     {
       "op": "promote",
       "bank": "X",
-      "sec_rev": 5,
+      "sec_rev": 2,
       "image_version": 1
     },
     {
-      "op": "reboot"
-    },
-    {
       "op": "force_seq",
-      "seq": 500
+      "seq": 900
     },
     {
       "op": "put",
@@ -68,8 +48,8 @@
     {
       "op": "promote",
       "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80
+      "sec_rev": 2,
+      "image_version": 9
     },
     {
       "op": "reboot"

@@ -1,6 +1,5 @@
 {
   "case_id": "sample_02",
-  "sec_floor": 1,
   "ops": [
     {
       "op": "put",

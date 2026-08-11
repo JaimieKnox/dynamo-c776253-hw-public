@@ -1,46 +1,33 @@
 {
-  "case_id": "h_compose_all",
+  "case_id": "h_compact_retain",
   "ops": [
     {
       "op": "force_seq",
-      "seq": 65450
-    },
-    {
-      "op": "put",
-      "key": "victim",
-      "value": "alive"
+      "seq": 200
     },
     {
       "op": "put",
       "key": "keep",
-      "value": "k0"
+      "value": "old"
     },
     {
       "op": "force_seq",
-      "seq": 90
-    },
-    {
-      "op": "delete",
-      "key": "victim"
+      "seq": 65000
     },
     {
       "op": "put",
-      "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_header"
-    },
-    {
-      "op": "reboot"
+      "key": "keep",
+      "value": "new"
     },
     {
       "op": "pad_puts",
-      "count": 105,
+      "count": 112,
       "val_len": 40
     },
     {
       "op": "put",
-      "key": "keep",
-      "value": "k1"
+      "key": "fill",
+      "value": "x"
     },
     {
       "op": "put",
@@ -55,7 +42,7 @@
     },
     {
       "op": "force_seq",
-      "seq": 200
+      "seq": 100
     },
     {
       "op": "put",

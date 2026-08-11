@@ -9,7 +9,7 @@
     {
       "op": "put",
       "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
       "tear": "after_header"
     },
     {
@@ -17,7 +17,7 @@
     },
     {
       "op": "pad_puts",
-      "count": 108,
+      "count": 110,
       "val_len": 40
     },
     {
@@ -27,29 +27,14 @@
     },
     {
       "op": "put",
-      "key": "mark",
-      "value": "1"
+      "key": "tail",
+      "value": "z"
     },
     {
       "op": "promote",
       "bank": "X",
       "sec_rev": 3,
       "image_version": 1
-    },
-    {
-      "op": "force_seq",
-      "seq": 500
-    },
-    {
-      "op": "put",
-      "key": "q",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "bank": "Y",
-      "sec_rev": 3,
-      "image_version": 9
     },
     {
       "op": "reboot"

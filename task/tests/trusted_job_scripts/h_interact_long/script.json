@@ -9,11 +9,48 @@
     {
       "op": "put",
       "key": "hole",
-      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-      "tear": "after_payload"
+      "value": "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "tear": "after_header"
     },
     {
       "op": "reboot"
+    },
+    {
+      "op": "pad_puts",
+      "count": 110,
+      "val_len": 40
+    },
+    {
+      "op": "put",
+      "key": "keep",
+      "value": "v2"
+    },
+    {
+      "op": "put",
+      "key": "mark",
+      "value": "1"
+    },
+    {
+      "op": "put",
+      "key": "p",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "X",
+      "sec_rev": 5,
+      "image_version": 1
+    },
+    {
+      "op": "put",
+      "key": "q",
+      "value": "1"
+    },
+    {
+      "op": "promote",
+      "bank": "Y",
+      "sec_rev": 5,
+      "image_version": 80
     },
     {
       "op": "force_seq",
@@ -31,45 +68,6 @@
     {
       "op": "delete",
       "key": "victim"
-    },
-    {
-      "op": "pad_puts",
-      "count": 108,
-      "val_len": 40
-    },
-    {
-      "op": "put",
-      "key": "keep",
-      "value": "v2"
-    },
-    {
-      "op": "put",
-      "key": "mark",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "bank": "X",
-      "sec_rev": 5,
-      "image_version": 1
-    },
-    {
-      "op": "reboot"
-    },
-    {
-      "op": "force_seq",
-      "seq": 500
-    },
-    {
-      "op": "put",
-      "key": "q",
-      "value": "1"
-    },
-    {
-      "op": "promote",
-      "bank": "Y",
-      "sec_rev": 5,
-      "image_version": 80
     },
     {
       "op": "reboot"
